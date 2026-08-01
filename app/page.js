@@ -63,28 +63,25 @@ function Services() {
 }
 
 function Work() {
+  const featured = CASE_STUDIES.slice(0, 6);
   return (
     <section id="work" style={{ padding: '96px 32px', background: 'var(--bg-void)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
         <SectionHead eyebrow="Selected work" title="Recent engagements." sub="A look at what we’ve shipped. More case studies land here as engagements complete." />
         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginTop: 40 }}>
-          {CASE_STUDIES.map((c) => (
+          {featured.map((c) => (
             <Link key={c.slug} href={`/work/${c.slug}`} style={{ textDecoration: 'none', cursor: 'pointer' }}>
               <CaseStudyCard {...c} />
             </Link>
           ))}
-          <ComingSoonCard />
         </div>
+        {CASE_STUDIES.length > featured.length && (
+          <div style={{ marginTop: 40, textAlign: 'center' }}>
+            <Link href="/work" style={{ textDecoration: 'none' }}><Button variant="secondary">See all work</Button></Link>
+          </div>
+        )}
       </div>
     </section>
-  );
-}
-
-function ComingSoonCard() {
-  return (
-    <div style={{ background: 'transparent', border: '1px dashed var(--border-default)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '22px', minHeight: 200 }}>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-body-s)', color: 'var(--text-tertiary)', textAlign: 'center' }}>More work in progress —<br />ask us for references</span>
-    </div>
   );
 }
 
