@@ -51,7 +51,7 @@ function Services() {
   return (
     <section id="services" style={{ padding: '96px 32px', background: 'var(--bg-0)' }}>
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
-        <SectionHead eyebrow="Capabilities" title="Nine disciplines. One accountable team." sub="We staff full delivery teams, not point solutions — every engagement can span as many of these as the system needs." />
+        <SectionHead eyebrow="Capabilities" title="Nine disciplines. One accountable team." sub="We staff full delivery teams, not point solutions. Every engagement can span as many of these as the system needs." />
         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginTop: 48 }}>
           {SERVICES.map((s, i) => (
             <ServiceCard key={s.title} index={String(i + 1).padStart(2, '0')} icon={<Icon name={s.icon} size={20} />} title={s.title} description={s.description} />

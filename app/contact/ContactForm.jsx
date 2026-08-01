@@ -64,7 +64,7 @@ export function ContactForm() {
       <Switch checked={nda} onChange={setNda} label="This project is under NDA" />
       {status === 'error' && (
         <span style={{ color: 'var(--status-danger)', fontSize: 'var(--text-body-s)', fontFamily: 'var(--font-body)' }}>
-          Something went wrong sending your message — email us directly at support@thodz.com instead.
+          Something went wrong sending your message. Email us directly at support@thodz.com instead.
         </span>
       )}
       <Button type="submit" variant="primary" size="lg" disabled={status === 'sending'}>

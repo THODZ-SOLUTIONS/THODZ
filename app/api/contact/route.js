@@ -33,17 +33,17 @@ export async function POST(request) {
           from: process.env.CONTACT_FROM_EMAIL || 'THODZ website <onboarding@resend.dev>',
           to: [toEmail],
           reply_to: email,
-          subject: `New project inquiry — ${company || name}`,
+          subject: `New project inquiry: ${company || name}`,
           text: [
             `Name: ${name}`,
             `Email: ${email}`,
-            `Company: ${company || '—'}`,
-            `Project type: ${type || '—'}`,
-            `Timeline: ${timeline || '—'}`,
+            `Company: ${company || 'Not provided'}`,
+            `Project type: ${type || 'Not provided'}`,
+            `Timeline: ${timeline || 'Not provided'}`,
             `Under NDA: ${nda ? 'Yes' : 'No'}`,
             '',
             'Details:',
-            details || '—',
+            details || 'Not provided',
           ].join('\n'),
         }),
       });
@@ -57,7 +57,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Failed to send' }, { status: 502 });
     }
   } else {
-    // No email provider configured — log so the submission isn't silently lost.
+    // No email provider configured. Log so the submission isn't silently lost.
     console.info('[contact] RESEND_API_KEY not set, logging submission only:', {
       name, email, company, type, timeline, nda, details,
     });

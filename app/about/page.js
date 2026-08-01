@@ -4,7 +4,7 @@ import { SERVICES } from '@/lib/content';
 
 export const metadata = {
   title: 'About',
-  description: 'THODZ SOLUTIONS is a full-stack engineering studio — a one-stop technical partner for teams that need it done right the first time.',
+  description: 'THODZ SOLUTIONS is a full-stack engineering studio: a one-stop technical partner for teams that need it done right the first time.',
 };
 
 export default function AboutPage() {
@@ -18,10 +18,10 @@ export default function AboutPage() {
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '72px 32px', display: 'flex', flexDirection: 'column', gap: 28 }}>
         <p style={{ fontFamily: 'var(--font-body)', color: 'var(--fg-2)', fontSize: 'var(--text-body-l)', lineHeight: 'var(--lh-relaxed)', margin: 0 }}>
-          We&rsquo;re a full-stack engineering studio: one team covering web, mobile, desktop, DevOps, security, AI/ML, automation, UI/UX, and technical consulting — so you scope a system once, not nine vendor relationships.
+          We&rsquo;re a full-stack engineering studio: one team covering web, mobile, desktop, DevOps, security, AI/ML, automation, UI/UX, and technical consulting, so you scope a system once, not nine vendor relationships.
         </p>
         <p style={{ fontFamily: 'var(--font-body)', color: 'var(--fg-2)', fontSize: 'var(--text-body-l)', lineHeight: 'var(--lh-relaxed)', margin: 0 }}>
-          We work remotely with clients across timezones, and deliver in French, English, and Arabic when a project calls for it. Every engagement gets a documented architecture, a runbook, and an engineer who stays reachable after the system ships — not a handoff to a support queue.
+          We work remotely with clients across timezones, and deliver in French, English, and Arabic when a project calls for it. Every engagement gets a documented architecture, a runbook, and an engineer who stays reachable after the system ships, not a handoff to a support queue.
         </p>
       </div>
 
