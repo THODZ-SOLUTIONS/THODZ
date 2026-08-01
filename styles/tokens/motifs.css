@@ -1,0 +1,7 @@
+:root{
+--grid-cell:32px;
+--grid-pattern:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+--dot-pattern:radial-gradient(rgba(59,130,246,0.16) 1px,transparent 1px);/* @kind other */
+}
+.bg-grid{background-image:var(--grid-pattern);background-size:var(--grid-cell) var(--grid-cell);}
+.bg-dot{background-image:var(--dot-pattern);background-size:18px 18px;}

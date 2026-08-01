@@ -1,0 +1,5 @@
+*{box-sizing:border-box}
+body{background:var(--surface-page);color:var(--text-primary);font-family:var(--font-body);margin:0;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-primary)}
+a:hover{color:var(--accent-primary-hover)}
+::selection{background:var(--cyan-700);color:var(--bg-void)}
