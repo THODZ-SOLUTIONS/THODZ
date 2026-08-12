@@ -1,0 +1,36 @@
+@import './tokens/colors.css';
+@import './tokens/fonts.css';
+@import './tokens/typography.css';
+@import './tokens/spacing.css';
+@import './tokens/radius.css';
+@import './tokens/effects.css';
+@import './tokens/motifs.css';
+@import './tokens/base.css';
+
+html {
+  scroll-behavior: smooth;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+}
+
+@media (max-width: 860px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .nav-links-desktop {
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
