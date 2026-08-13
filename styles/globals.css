@@ -20,17 +20,137 @@ button {
   font: inherit;
 }
 
+/* Keyboard users get a visible ring everywhere, mouse users don't. */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* FAQ disclosure -------------------------------------------------------- */
+
+.faq-item {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.faq-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 4px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: var(--text-heading-s);
+  color: var(--fg-1);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-summary:hover {
+  color: var(--accent-primary);
+}
+
+/* A plus that becomes a minus. Two bars, one rotated away on open. */
+.faq-marker {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.faq-marker::before,
+.faq-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 14px;
+  height: 1.5px;
+  background: var(--accent-primary);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.faq-marker::after {
+  transform: rotate(90deg);
+}
+
+.faq-item[open] .faq-marker::after {
+  transform: rotate(0deg);
+}
+
+.faq-answer {
+  margin: 0;
+  padding: 0 4px 26px;
+  max-width: 68ch;
+  font-family: var(--font-body);
+  font-size: var(--text-body-m);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-2);
+}
+
+/* Responsive ------------------------------------------------------------ */
+
+@media (max-width: 1000px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
 @media (max-width: 860px) {
   .grid-3 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
   .nav-links-desktop {
     gap: 14px !important;
+  }
+  .team-card {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+/* Below this the horizontal nav can't fit, so it becomes a disclosure menu. */
+@media (max-width: 760px) {
+  .nav-links-desktop {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: inline-flex !important;
   }
 }
 
 @media (max-width: 600px) {
-  .grid-3 {
+  .grid-3,
+  .grid-4 {
     grid-template-columns: 1fr !important;
+  }
+  /* The bracketed hero frame needs its inset back at phone widths, or the
+     headline has nowhere left to go. */
+  .hero {
+    padding: 96px 20px 64px !important;
+  }
+  .hero-frame {
+    padding: 28px 20px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

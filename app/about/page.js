@@ -1,10 +1,19 @@
 import Link from 'next/link';
 import { Button } from '@/components/core/Button';
-import { SERVICES } from '@/lib/content';
+import { SectionHead } from '@/components/marketing/SectionHead';
+import { TeamCard } from '@/components/marketing/TeamCard';
+import { SERVICES, TEAM } from '@/lib/content';
+import { SITE_URL } from '@/lib/config';
 
 export const metadata = {
   title: 'About',
-  description: 'THODZ SOLUTIONS is a full-stack engineering studio: a one-stop technical partner for teams that need it done right the first time.',
+  description: 'THODZ SOLUTIONS is a full-stack engineering studio: a one-stop technical partner for teams that need it done right the first time. Meet the people behind it.',
+  alternates: { canonical: '/about' },
+  openGraph: {
+    title: 'About · THODZ SOLUTIONS',
+    description: 'The people behind the engineering studio, and how we work.',
+    url: `${SITE_URL}/about`,
+  },
 };
 
 export default function AboutPage() {
@@ -25,7 +34,24 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '72px 32px', background: 'var(--bg-void)' }}>
+      {TEAM.length > 0 && (
+        <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '72px 32px', background: 'var(--bg-void)' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto' }}>
+            <SectionHead
+              eyebrow="Who you’ll work with"
+              title={TEAM.length === 1 ? 'The person who answers your email.' : 'The people who answer your email.'}
+              sub="No account managers between you and the engineers. You talk to the people writing the code."
+            />
+            <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {TEAM.map((m) => (
+                <TeamCard key={m.name} {...m} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '72px 32px', background: 'var(--bg-0)' }}>
         <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--accent-primary)', marginBottom: 16 }}>What we cover</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -36,9 +62,12 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div style={{ padding: '96px 32px', textAlign: 'center' }}>
+      <div style={{ padding: '96px 32px', textAlign: 'center', borderTop: '1px solid var(--border-subtle)' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-display-m)', color: 'var(--fg-0)', margin: '0 0 24px' }}>Have a system to build?</h2>
-        <Link href="/contact" style={{ textDecoration: 'none' }}><Button variant="primary" size="lg">Start a project</Button></Link>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/contact" style={{ textDecoration: 'none' }}><Button variant="primary" size="lg">Start a project</Button></Link>
+          <Link href="/pricing" style={{ textDecoration: 'none' }}><Button variant="secondary" size="lg">See how we bill</Button></Link>
+        </div>
       </div>
     </div>
   );

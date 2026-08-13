@@ -7,7 +7,11 @@ import { CaseStudyCard } from '@/components/marketing/CaseStudyCard';
 import { ProcessStep } from '@/components/marketing/ProcessStep';
 import { StatCard } from '@/components/marketing/StatCard';
 import { SectionHead } from '@/components/marketing/SectionHead';
-import { SERVICES, PROCESS, VALUES, CASE_STUDIES } from '@/lib/content';
+import { Testimonial } from '@/components/marketing/Testimonial';
+import { LogoStrip } from '@/components/marketing/LogoStrip';
+import { EngagementCard } from '@/components/marketing/EngagementCard';
+import { SERVICES, PROCESS, VALUES, CASE_STUDIES, TESTIMONIALS, CLIENTS, ENGAGEMENTS } from '@/lib/content';
+import { visible } from '@/lib/config';
 
 export default function HomePage() {
   return (
@@ -15,7 +19,9 @@ export default function HomePage() {
       <Hero />
       <Services />
       <Work />
+      <Proof />
       <Process />
+      <Engagement />
       <Values />
       <ContactCta />
     </div>
@@ -24,9 +30,9 @@ export default function HomePage() {
 
 function Hero() {
   return (
-    <section className="bg-grid" style={{ position: 'relative', padding: '160px 32px 96px', background: 'linear-gradient(180deg,var(--bg-0),var(--bg-1))', borderBottom: '1px solid var(--border-subtle)' }}>
+    <section className="bg-grid hero" style={{ position: 'relative', padding: '160px 32px 96px', background: 'linear-gradient(180deg,var(--bg-0),var(--bg-1))', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', position: 'relative' }}>
-        <div style={{ position: 'relative', maxWidth: 780, padding: '40px 44px' }}>
+        <div className="hero-frame" style={{ position: 'relative', maxWidth: 780, padding: '40px 44px' }}>
           <div style={{ position: 'absolute', top: -1, left: -1, width: 20, height: 20, borderTop: '2px solid var(--accent-primary)', borderLeft: '2px solid var(--accent-primary)' }} />
           <div style={{ position: 'absolute', bottom: -1, right: -1, width: 20, height: 20, borderBottom: '2px solid var(--accent-primary)', borderRight: '2px solid var(--accent-primary)' }} />
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--accent-primary)', marginBottom: 20 }}>Full-stack engineering studio</div>
@@ -38,9 +44,10 @@ function Hero() {
           </div>
         </div>
         <div style={{ display: 'flex', marginTop: 64, paddingTop: 40, borderTop: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: 24 }}>
-          <StatCard value="9" label="DISCIPLINES COVERED" />
+          <StatCard value={String(SERVICES.length)} label="DISCIPLINES COVERED" />
+          <StatCard value={String(CASE_STUDIES.length)} label="PROJECTS SHIPPED" />
           <StatCard value="FR·EN·AR" label="MULTILINGUAL DELIVERY" />
-          <StatCard value="DZ" label="BASED · REMOTE-READY" />
+          <StatCard value="1 DAY" label="REPLY, GUARANTEED" />
         </div>
       </div>
     </section>
@@ -63,7 +70,11 @@ function Services() {
 }
 
 function Work() {
-  const featured = CASE_STUDIES.slice(0, 6);
+  // Lead with the projects we can actually show. Sort is stable, so within
+  // each group the curated order in lib/content.js is preserved.
+  const featured = [...CASE_STUDIES]
+    .sort((a, b) => (b.images?.length ? 1 : 0) - (a.images?.length ? 1 : 0))
+    .slice(0, 6);
   return (
     <section id="work" style={{ padding: '96px 32px', background: 'var(--bg-void)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
@@ -85,9 +96,69 @@ function Work() {
   );
 }
 
+// Client logos and quotes. Both lists are empty in production until real,
+// approved entries exist, and the whole section disappears with them rather
+// than shipping an empty shell.
+function Proof() {
+  const quotes = visible(TESTIMONIALS);
+  const clients = visible(CLIENTS);
+  if (!quotes.length && !clients.length) return null;
+
+  return (
+    <section style={{ padding: '96px 32px', background: 'var(--bg-0)' }}>
+      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
+        <SectionHead
+          eyebrow="In their words"
+          title="What clients say afterwards."
+          sub="The part that matters is what still works six months later."
+        />
+        {quotes.length > 0 && (
+          <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 20, marginTop: 44 }}>
+            {quotes.map((t) => (
+              <Testimonial key={t.name + t.quote.slice(0, 12)} {...t} />
+            ))}
+          </div>
+        )}
+        {clients.length > 0 && (
+          <div style={{ marginTop: 56, paddingTop: 40, borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--text-tertiary)', textAlign: 'center', marginBottom: 28 }}>
+              Teams we&rsquo;ve built for
+            </div>
+            <LogoStrip clients={clients} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Engagement() {
+  return (
+    <section id="pricing" style={{ padding: '96px 32px', background: 'var(--bg-void)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
+        <SectionHead
+          eyebrow="Engagement models"
+          title="Priced before it starts, not after."
+          sub="You approve a scope and a number up front. Pick the shape that fits the work: we&rsquo;ll tell you if you&rsquo;ve picked the wrong one."
+        />
+        <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginTop: 44, alignItems: 'stretch' }}>
+          {ENGAGEMENTS.slice(0, 3).map((e) => (
+            <EngagementCard key={e.name} {...e} />
+          ))}
+        </div>
+        <div style={{ marginTop: 36, textAlign: 'center' }}>
+          <Link href="/pricing" style={{ textDecoration: 'none' }}>
+            <Button variant="secondary">All models, billing &amp; contract terms</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Process() {
   return (
-    <section id="process" style={{ padding: '96px 32px', background: 'var(--bg-0)' }}>
+    <section id="process" style={{ padding: '96px 32px', background: 'var(--bg-0)', borderTop: '1px solid var(--border-subtle)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
         <SectionHead eyebrow="How we work" title="A process built for accountability." sub="Five stages, one team, no handoffs between strangers." />
         <div style={{ marginTop: 48 }}>
@@ -102,7 +173,7 @@ function Process() {
 
 function Values() {
   return (
-    <section id="values" style={{ padding: '96px 32px', background: 'var(--bg-void)', borderTop: '1px solid var(--border-subtle)' }}>
+    <section id="values" style={{ padding: '96px 32px', background: 'var(--bg-0)', borderTop: '1px solid var(--border-subtle)' }}>
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
         <SectionHead eyebrow="Why choose us" title="Engineering credibility, not just delivery." sub="We publish runbooks, document architecture decisions, and stay reachable after launch." />
         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginTop: 48 }}>
