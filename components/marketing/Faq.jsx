@@ -4,7 +4,7 @@ export function Faq({ items = [] }) {
   if (!items.length) return null;
 
   return (
-    <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
+    <div className="faq">
       {items.map((item) => (
         <details key={item.q} className="faq-item">
           <summary className="faq-summary">

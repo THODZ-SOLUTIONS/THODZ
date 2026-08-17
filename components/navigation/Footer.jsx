@@ -2,13 +2,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CONTACT, SOCIALS } from '@/lib/config';
 
-export function Footer() {
+export function Footer({ locale, t }) {
   const company = [
-    { label: 'Services', href: '/#services' },
-    { label: 'Work', href: '/work' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
+    { label: t.nav.services, href: `/${locale}#services` },
+    { label: t.nav.work, href: `/${locale}/work` },
+    { label: t.nav.pricing, href: `/${locale}/pricing` },
+    { label: t.nav.about, href: `/${locale}/about` },
+    { label: t.footer.contact, href: `/${locale}/contact` },
   ];
 
   const contact = [
@@ -20,30 +20,49 @@ export function Footer() {
   const socials = SOCIALS.filter((s) => s.href);
 
   return (
-    <footer style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-void)', padding: '56px 32px 32px' }}>
-      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 40 }}>
-        <div style={{ maxWidth: 320 }}>
-          <Image src="/assets/logo-full-dark.svg" alt="THODZ" width={240} height={64} style={{ height: 38, width: 'auto', marginBottom: 18 }} />
-          <p style={{ fontSize: 'var(--text-body-s)', color: 'var(--text-tertiary)', lineHeight: 'var(--lh-normal)', margin: '0 0 14px' }}>
-            A full-stack engineering studio. Web, mobile, desktop, and infrastructure systems, built and operated by one accountable team.
-          </p>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-mono-s)', color: 'var(--fg-4)', margin: 0 }}>
-            Algeria (UTC+1) &middot; working remotely
-          </p>
+    <footer className="footer">
+      <div className="footer-main">
+        <div className="footer-blurb">
+          <Image
+            src="/assets/logo-full.svg"
+            alt="THODZ"
+            width={240}
+            height={64}
+            className="logo-light"
+            style={{ height: 38, width: 'auto', marginBottom: 18 }}
+          />
+          <Image
+            src="/assets/logo-full-dark.svg"
+            alt="THODZ"
+            width={240}
+            height={64}
+            className="logo-dark"
+            style={{ height: 38, width: 'auto', marginBottom: 18 }}
+          />
+          <p>{t.footer.blurb}</p>
+          <p className="footer-locale">{t.footer.locale}</p>
         </div>
 
-        <div style={{ display: 'flex', gap: 64, flexWrap: 'wrap' }}>
-          <FooterCol title="Company" links={company} />
-          <FooterCol title="Contact" links={contact} />
-          {socials.length > 0 && <FooterCol title="Elsewhere" links={socials} />}
+        <div className="footer-cols">
+          <FooterCol title={t.footer.company} links={company} />
+          <FooterCol title={t.footer.contact} links={contact} />
+          {socials.length > 0 && <FooterCol title={t.footer.elsewhere} links={socials} />}
         </div>
       </div>
 
-      <div style={{ maxWidth: 'var(--container-max)', margin: '40px auto 0', paddingTop: 24, borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', color: 'var(--text-tertiary)' }}>
-          &copy; {new Date().getFullYear()} THODZ SOLUTIONS. All rights reserved.
+      <div className="footer-bottom">
+        <span className="footer-fineprint">
+          &copy; {new Date().getFullYear()} THODZ SOLUTIONS. {t.footer.rights}
         </span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', color: 'var(--text-tertiary)' }}>thodz.com</span>
+        <span className="footer-legal">
+          <Link href={`/${locale}/privacy`} className="footer-link">
+            {t.footer.privacy}
+          </Link>
+          <Link href={`/${locale}/terms`} className="footer-link">
+            {t.footer.terms}
+          </Link>
+          <span className="footer-fineprint">thodz.com</span>
+        </span>
       </div>
     </footer>
   );
@@ -52,17 +71,18 @@ export function Footer() {
 function FooterCol({ title, links }) {
   return (
     <div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-label)', letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 14 }}>
-        {title}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="footer-col-title">{title}</div>
+      <div className="footer-col-links">
         {links.map((l) => {
           const external = l.href.startsWith('http');
-          const style = { color: 'var(--text-secondary)', fontSize: 'var(--text-body-s)', textDecoration: 'none' };
           return external ? (
-            <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={style}>{l.label}</a>
+            <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="footer-link">
+              {l.label}
+            </a>
           ) : (
-            <Link key={l.label} href={l.href} style={style}>{l.label}</Link>
+            <Link key={l.label} href={l.href} className="footer-link">
+              {l.label}
+            </Link>
           );
         })}
       </div>

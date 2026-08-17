@@ -1,6 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
-:root{
---font-display:'Space Grotesk',sans-serif;
---font-body:'IBM Plex Sans',sans-serif;
---font-mono:'IBM Plex Mono',monospace;
+/* Font family tokens. The faces are self-hosted: see tokens/font-faces.css
+   and public/fonts/. No network fetch at build time or runtime.
+
+   Poppins carries all Latin text (display and body). On the Arabic locale,
+   Alexandria — a variable font covering Arabic and Latin — takes over every
+   role, mono included: IBM Plex Mono has no Arabic glyphs and letting the
+   browser fall back to a system monospace reads as broken. */
+:root {
+  --font-display: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Poppins', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+html[lang='ar'] {
+  --font-display: 'Alexandria', system-ui, sans-serif;
+  --font-body: 'Alexandria', system-ui, sans-serif;
+  --font-mono: 'Alexandria', system-ui, sans-serif;
+
+  /* Arabic script connects its letters; tracking pulls them apart and breaks
+     the joins. Zero every tracking token rather than chasing each usage. */
+  --tracking-tight: 0em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0em;
+  --tracking-label: 0em;
 }

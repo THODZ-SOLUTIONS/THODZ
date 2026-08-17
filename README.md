@@ -8,9 +8,42 @@ same tokens, same components, same voice.
 ## Stack
 
 - Next.js 16 (App Router), plain JS (no TypeScript, matching the source design system)
-- No CSS framework. Design tokens come from `styles/tokens/*.css` (colors, type, spacing, radius, effects, motifs), same files as the design system
+- No CSS framework. Design tokens live in `styles/tokens/*.css`; component styles in
+  `styles/components/*.css`, all imported by `styles/globals.css`. Components carry
+  classes only — no inline layout styles beyond one-off spacing and dynamic values
+- Fonts are vendored in `public/fonts/` and declared in
+  `styles/tokens/font-faces.css` — no `next/font/google`, so builds work
+  offline and nothing ever fetches from Google. Poppins carries Latin text,
+  Alexandria takes over every role on the Arabic locale, IBM Plex Mono stays
+  for the mono accents on Latin locales
+- Trilingual (`/en`, `/fr`, `/ar`) with native App Router i18n — no library.
+  `proxy.js` redirects un-prefixed URLs by cookie/`Accept-Language`;
+  UI strings live in `lib/i18n/dictionaries/`, translated content overlays in
+  `lib/i18n/content/` (merged onto `lib/content.js`, the English source of
+  truth, by `lib/i18n/index.js`). Arabic renders RTL with tracking zeroed
 - `lucide-react` for icons
 - One API route (`/api/contact`) for the contact form, optionally wired to [Resend](https://resend.com) for email delivery
+
+## Theming
+
+The site ships light and dark themes. Light tokens live on `:root` in
+`styles/tokens/colors.css` (and `effects.css` for elevation); dark overrides live
+under `[data-theme="dark"]`, with a `prefers-color-scheme` fallback for no-JS
+visitors. An inline script in `app/layout.js` (`lib/theme.js`) resolves the theme
+before first paint — saved choice first, OS preference otherwise — so there is no
+flash. The navbar toggle persists to `localStorage`. For previews, `?theme=light`
+or `?theme=dark` on any URL forces a theme without persisting it.
+
+When editing theme-dependent tokens, keep the dark block and the
+`prefers-color-scheme` fallback block in sync (both files say so in comments).
+
+## Motion
+
+Scroll reveals use the `Reveal` component (`components/core/Reveal.jsx`), a thin
+IntersectionObserver wrapper; its hidden initial state is gated behind the
+`data-js` attribute so content is never invisible to crawlers or no-JS visitors.
+Hero load animations are pure CSS (`styles/components/hero.css`). Everything
+respects `prefers-reduced-motion`.
 
 ## Local development
 

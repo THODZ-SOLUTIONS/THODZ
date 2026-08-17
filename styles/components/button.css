@@ -1,0 +1,90 @@
+/* Button system. Works identically on <button class="btn"> and
+   <a class="btn">, so links never need to wrap a nested button. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-normal);
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  text-decoration: none;
+  background: transparent;
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+/* Sizes */
+.btn--sm {
+  padding: 8px 14px;
+  font-size: var(--text-body-s);
+}
+.btn--md {
+  padding: 11px 20px;
+  font-size: var(--text-body-m);
+}
+.btn--lg {
+  padding: 14px 26px;
+  font-size: var(--text-body-l);
+}
+
+/* Variants */
+.btn--primary {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--text-inverse);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+  color: var(--text-inverse);
+  box-shadow: var(--glow-accent-sm);
+}
+.btn--primary:active:not(:disabled) {
+  background: var(--accent-primary-press);
+  border-color: var(--accent-primary-press);
+}
+
+.btn--secondary {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.btn--ghost {
+  color: var(--text-secondary);
+}
+.btn--ghost:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-3);
+}
+
+.btn--danger {
+  border-color: var(--status-danger);
+  color: var(--status-danger);
+}
+.btn--danger:hover:not(:disabled) {
+  background: var(--status-danger);
+  color: var(--text-inverse);
+}

@@ -1,0 +1,268 @@
+/* Form controls, tags, and toasts. Real inputs everywhere: radios and the
+   switch are native <input>s visually hidden with .sr-only, styled through
+   their sibling span via :checked / :focus-visible. */
+
+/* Field scaffold ------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.field-note {
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+}
+
+.field-note--error {
+  color: var(--status-danger);
+}
+
+/* Text inputs ----------------------------------------------------------- */
+
+.input {
+  background: var(--bg-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font-size: var(--text-body-m);
+  font-family: var(--font-body);
+  outline: none;
+  width: 100%;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.input::placeholder {
+  color: var(--fg-4);
+}
+
+.input:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.input--error {
+  border-color: var(--status-danger);
+}
+
+.input--mono {
+  font-family: var(--font-mono);
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+/* Select: same skin plus a chevron the native control loses to
+   appearance:none. The wrapper positions the icon; pointer-events off so
+   clicks land on the select. */
+
+.select-wrap {
+  position: relative;
+  display: flex;
+}
+
+select.input {
+  appearance: none;
+  padding-inline-end: 40px;
+}
+
+.select-chevron {
+  position: absolute;
+  inset-inline-end: 12px;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  display: flex;
+}
+
+/* Radio ----------------------------------------------------------------- */
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--text-body-m);
+  color: var(--text-secondary);
+}
+
+.radio-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.radio-dot::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-primary);
+  scale: 0;
+  transition: scale var(--duration-fast) var(--ease-standard);
+}
+
+.radio input:checked + .radio-dot {
+  border-color: var(--accent-primary);
+}
+
+.radio input:checked + .radio-dot::after {
+  scale: 1;
+}
+
+.radio input:focus-visible + .radio-dot {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Switch ---------------------------------------------------------------- */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.switch-label {
+  font-size: var(--text-body-m);
+  color: var(--text-secondary);
+}
+
+.switch-track {
+  width: 38px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-3);
+  border: 1px solid var(--border-default);
+  position: relative;
+  flex-shrink: 0;
+  transition:
+    background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--fg-3);
+  transition:
+    translate var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard);
+}
+
+.switch input:checked + .switch-track {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.switch input:checked + .switch-track::after {
+  translate: 16px 0;
+  background: var(--text-inverse);
+}
+
+/* The knob starts from the inline-start edge, so in RTL it slides the other
+   way. */
+[dir='rtl'] .switch input:checked + .switch-track::after {
+  translate: -16px 0;
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Tag ------------------------------------------------------------------- */
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.tag--active {
+  border-color: var(--accent-primary);
+  background: var(--accent-alpha-8);
+  color: var(--accent-primary);
+}
+
+button.tag {
+  cursor: pointer;
+}
+
+button.tag:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+/* Toast ----------------------------------------------------------------- */
+
+.toast {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-inline-start: 2px solid var(--toast-tone, var(--accent-primary));
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: var(--elevation-3);
+}
+
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--toast-tone, var(--accent-primary));
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.toast-title {
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-body-m);
+  color: var(--text-primary);
+}
+
+.toast-message {
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}

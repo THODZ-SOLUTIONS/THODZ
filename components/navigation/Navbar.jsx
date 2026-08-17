@@ -1,66 +1,97 @@
 'use client';
-import React from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@/components/core/Icon';
+import { ThemeToggle } from '@/components/core/ThemeToggle';
+import { LocaleSwitcher } from '@/components/navigation/LocaleSwitcher';
 
-const LINKS = [
-  { label: 'Services', href: '/#services' },
-  { label: 'Work', href: '/work' },
-  { label: 'Process', href: '/#process' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'About', href: '/about' },
-];
+// Anchor links (/en#services) are never "current"; real routes are, including
+// their subpaths so /en/work/some-case keeps Work highlighted.
+function isActive(href, pathname) {
+  if (href.includes('#')) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
-const linkStyle = {
-  color: 'var(--text-secondary)',
-  fontSize: 'var(--text-body-s)',
-  textDecoration: 'none',
-  fontFamily: 'var(--font-body)',
-};
+function NavLogo({ className }) {
+  return (
+    <>
+      <Image
+        src="/assets/logo-full.svg"
+        alt="THODZ"
+        width={240}
+        height={64}
+        priority
+        className={`logo-light ${className}`.trim()}
+        style={{ height: 34, width: 'auto' }}
+      />
+      <Image
+        src="/assets/logo-full-dark.svg"
+        alt="THODZ"
+        width={240}
+        height={64}
+        priority
+        className={`logo-dark ${className}`.trim()}
+        style={{ height: 34, width: 'auto' }}
+      />
+    </>
+  );
+}
 
-const ctaStyle = {
-  fontFamily: 'var(--font-body)',
-  fontWeight: 'var(--weight-medium)',
-  fontSize: 'var(--text-body-s)',
-  borderRadius: 'var(--radius-sm)',
-  padding: '10px 18px',
-  background: 'var(--accent-primary)',
-  color: 'var(--text-inverse)',
-  textDecoration: 'none',
-  border: '1px solid var(--accent-primary)',
-};
-
-export function Navbar() {
-  const [open, setOpen] = React.useState(false);
+export function Navbar({ locale, t }) {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
+  const links = [
+    { label: t.services, href: `/${locale}#services` },
+    { label: t.work, href: `/${locale}/work` },
+    { label: t.process, href: `/${locale}#process` },
+    { label: t.pricing, href: `/${locale}/pricing` },
+    { label: t.about, href: `/${locale}/about` },
+  ];
+
   // Any navigation closes the menu, including same-page anchor jumps.
-  React.useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled((prev) => {
+        const next = window.scrollY > 8;
+        return next === prev ? prev : next;
+      });
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <nav
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'rgba(10,14,19,0.85)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
-          <Image src="/assets/logo-full-dark.svg" alt="THODZ" width={240} height={64} priority style={{ height: 34, width: 'auto' }} />
+    <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
+      <div className="nav-inner">
+        <Link href={`/${locale}`} className="nav-logo">
+          <NavLogo className="" />
         </Link>
 
-        <div style={{ display: 'flex', gap: 28, alignItems: 'center' }} className="nav-links-desktop">
-          {LINKS.map((l) => (
-            <Link key={l.label} href={l.href} style={linkStyle}>{l.label}</Link>
+        <div className="nav-links-desktop">
+          {links.map((l) => (
+            <Link
+              key={l.label}
+              href={l.href}
+              className={`nav-link${isActive(l.href, pathname) ? ' nav-link--active' : ''}`}
+              aria-current={isActive(l.href, pathname) ? 'page' : undefined}
+            >
+              {l.label}
+            </Link>
           ))}
-          <Link href="/contact" style={ctaStyle}>Start a project</Link>
+          <LocaleSwitcher locale={locale} label={t.languageLabel} />
+          <ThemeToggle />
+          <Link href={`/${locale}/contact`} className="btn btn--primary btn--sm">
+            {t.startProject}
+          </Link>
         </div>
 
         <button
@@ -68,37 +99,27 @@ export function Navbar() {
           className="nav-toggle"
           aria-expanded={open}
           aria-controls="nav-mobile"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? t.closeMenu : t.openMenu}
           onClick={() => setOpen((v) => !v)}
-          style={{
-            display: 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 40,
-            height: 40,
-            background: 'transparent',
-            border: '1px solid var(--border-default)',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
-          }}
         >
           <Icon name={open ? 'X' : 'Menu'} size={18} />
         </button>
       </div>
 
       {open && (
-        <div
-          id="nav-mobile"
-          className="nav-mobile"
-          style={{ borderTop: '1px solid var(--border-subtle)', padding: '12px 32px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}
-        >
-          {LINKS.map((l) => (
-            <Link key={l.label} href={l.href} onClick={() => setOpen(false)} style={{ ...linkStyle, padding: '12px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div id="nav-mobile" className="nav-mobile">
+          {links.map((l) => (
+            <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className="nav-link">
               {l.label}
             </Link>
           ))}
-          <Link href="/contact" onClick={() => setOpen(false)} style={{ ...ctaStyle, marginTop: 14, textAlign: 'center' }}>Start a project</Link>
+          <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <LocaleSwitcher locale={locale} label={t.languageLabel} />
+            <ThemeToggle />
+          </div>
+          <Link href={`/${locale}/contact`} onClick={() => setOpen(false)} className="btn btn--primary btn--md">
+            {t.startProject}
+          </Link>
         </div>
       )}
     </nav>

@@ -1,0 +1,38 @@
+/* Motion system. Two mechanisms only:
+   1. .reveal — scroll-triggered fade-up, driven by the Reveal component.
+      The hidden initial state is gated behind [data-js] (stamped by the
+      theme-init script) so content is never invisible without JavaScript.
+   2. Load animations — pure CSS keyframes for the hero (see hero.css).
+   Reduced-motion visitors get final states with no movement. */
+
+[data-js] .reveal {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+[data-js] .reveal.is-visible {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    translate var(--duration-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-js] .reveal {
+    opacity: 1;
+    translate: none;
+  }
+}

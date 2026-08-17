@@ -1,0 +1,390 @@
+/* Patterns shared across pages: the gridded page header, centered CTA
+   sections, chips, labeled dividers, contact channels, next-step lists, and
+   the case-study template's furniture. */
+
+.container--sm {
+  max-width: 640px;
+}
+.container--md {
+  max-width: 720px;
+}
+.container--lg {
+  max-width: 900px;
+}
+
+/* Page header: every inner page opens with this gridded band. */
+.page-head {
+  padding: 80px 0 56px;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-0));
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.page-head h1 {
+  font-size: var(--text-display-l);
+  color: var(--fg-0);
+  margin: 0;
+}
+
+/* SectionHead's h2 doubles as an h1-level title inside page heads. */
+.page-head .section-head h2 {
+  font-size: var(--text-display-m);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-accent);
+  margin-bottom: var(--space-4);
+}
+
+/* Centered CTA band ------------------------------------------------------ */
+
+.cta-section {
+  padding: 110px 0;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+}
+
+.cta-section--raised {
+  background: var(--surface-raised);
+}
+
+.cta-section h2 {
+  font-size: var(--text-display-m);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-4);
+}
+
+.cta-section p {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  font-size: var(--text-body-l);
+  line-height: var(--lh-relaxed);
+  margin: 0 auto var(--space-8);
+  max-width: 560px;
+}
+
+.cta-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Chips ------------------------------------------------------------------ */
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+}
+
+.chip--lg {
+  font-size: var(--text-body-s);
+  padding: 8px 14px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Labeled divider (contact page "or send the details") ------------------- */
+
+.divider-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 36px 0 32px;
+}
+
+.divider-label::before,
+.divider-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.divider-label span {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* Contact channels ------------------------------------------------------- */
+
+.channel-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 16px 18px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--elevation-1);
+  transition:
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    translate var(--duration-base) var(--ease-standard);
+}
+
+.channel-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--elevation-2);
+  translate: 0 -2px;
+  color: inherit;
+}
+
+.channel-card--primary {
+  background: var(--surface-overlay);
+  border-color: var(--accent-primary);
+}
+
+.channel-icon {
+  color: var(--accent-primary);
+  display: flex;
+}
+
+.channel-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.channel-label {
+  font-family: var(--font-display);
+  font-size: var(--text-body-m);
+  color: var(--fg-0);
+}
+
+.channel-detail {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Numbered next-steps list ----------------------------------------------- */
+
+.next-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.next-steps li {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.next-steps-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--fg-4);
+  padding-top: 2px;
+}
+
+.next-steps-title {
+  font-family: var(--font-display);
+  font-size: var(--text-body-m);
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.next-steps-body {
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+}
+
+/* Contact form ----------------------------------------------------------- */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-error {
+  color: var(--status-danger);
+  font-size: var(--text-body-s);
+  font-family: var(--font-body);
+}
+
+/* Case-study template ---------------------------------------------------- */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s);
+  margin-bottom: 28px;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text-secondary);
+}
+
+.case-hero-summary {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  font-size: var(--text-body-l);
+  line-height: var(--lh-relaxed);
+  max-width: 640px;
+  margin: 0 0 24px;
+}
+
+.case-client {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+  margin-bottom: 20px;
+}
+
+.case-client-prefix {
+  color: var(--fg-4);
+}
+
+.case-body {
+  padding: var(--space-12) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.case-metric-band {
+  display: flex;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-6) 0;
+}
+
+.case-metric {
+  flex: 1;
+  border-inline-start: 1px solid var(--border-subtle);
+  padding-inline-start: var(--space-6);
+}
+
+.case-metric-value {
+  font-family: var(--font-mono);
+  color: var(--text-accent);
+  line-height: var(--lh-snug);
+  font-size: var(--text-display-m);
+}
+
+.case-metric-value--long {
+  font-size: var(--text-heading-l);
+}
+
+.case-metric-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  letter-spacing: var(--tracking-wide);
+  margin-top: 6px;
+}
+
+.case-section h2 {
+  font-size: var(--text-heading-m);
+  color: var(--fg-0);
+  margin: 0 0 10px;
+}
+
+.case-section p {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  font-size: var(--text-body-m);
+  line-height: var(--lh-relaxed);
+  margin: 0;
+  max-width: 68ch;
+}
+
+.outcome-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: var(--space-3) var(--space-8);
+}
+
+.outcome-list li {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-3);
+}
+
+.outcome-list li::before {
+  content: '→';
+  color: var(--accent-primary);
+  font-family: var(--font-mono);
+}
+
+.case-next {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-10);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.case-next-link {
+  text-decoration: none;
+  max-width: 380px;
+}
+
+.case-next-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.case-next-title {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-s);
+  color: var(--text-accent);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.case-next-link:hover .case-next-title {
+  color: var(--accent-primary-hover);
+}

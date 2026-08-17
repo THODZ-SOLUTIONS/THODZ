@@ -19,15 +19,15 @@ export default function OpengraphImage() {
           justifyContent: 'space-between',
           background: '#0a0e13',
           backgroundImage:
-            'linear-gradient(rgba(59,130,246,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.10) 1px, transparent 1px)',
+            'linear-gradient(rgba(92,127,255,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(92,127,255,0.10) 1px, transparent 1px)',
           backgroundSize: '48px 48px',
           padding: 72,
           fontFamily: 'sans-serif',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 14, height: 14, background: '#3b82f6' }} />
-          <div style={{ fontSize: 26, letterSpacing: 6, color: '#3b82f6', textTransform: 'uppercase' }}>
+          <div style={{ width: 14, height: 14, background: '#5c7fff' }} />
+          <div style={{ fontSize: 26, letterSpacing: 6, color: '#5c7fff', textTransform: 'uppercase' }}>
             THODZ SOLUTIONS
           </div>
         </div>

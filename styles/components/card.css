@@ -1,0 +1,438 @@
+/* Card system. One base surface, one hover contract. Only cards that lead
+   somewhere get .card--interactive; static cards stay still. */
+
+.card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-1);
+}
+
+.card--interactive {
+  transition:
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard),
+    translate var(--duration-base) var(--ease-standard);
+}
+
+.card--interactive:hover,
+.card--interactive:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: var(--elevation-2);
+  translate: 0 -2px;
+}
+
+/* Service card ---------------------------------------------------------- */
+
+.service-card {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+  height: 100%;
+}
+
+.service-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.service-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--accent-alpha-8);
+  border: 1px solid var(--accent-alpha-25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+}
+
+.service-card-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+
+.service-card h3 {
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.service-card p {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Case study card ------------------------------------------------------- */
+
+.case-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.case-card-cover {
+  position: relative;
+  height: 160px;
+  background: linear-gradient(160deg, var(--bg-2), var(--bg-1));
+  border-bottom: 1px solid var(--border-subtle);
+  overflow: hidden;
+  flex: none;
+}
+
+.case-card-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.case-card-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--scrim-weak) 0%, var(--scrim-strong) 100%);
+}
+
+/* The no-screenshot cover: blueprint grid plus an oversized mono monogram,
+   so an image-less project still reads as a designed tile, not a gap. */
+.case-card-abstract {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.case-card-monogram {
+  font-family: var(--font-mono);
+  font-size: 56px;
+  font-weight: var(--weight-medium);
+  color: var(--accent-alpha-25);
+  letter-spacing: var(--tracking-wide);
+  user-select: none;
+}
+
+.case-card-body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.case-card-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.case-card h3 {
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  margin: -4px 0 0;
+}
+
+.case-card p {
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+  margin: 0;
+}
+
+.case-card-stack {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.case-card-chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+}
+
+.case-card-metric {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s);
+  color: var(--text-accent);
+  margin-top: var(--space-1);
+}
+
+/* Engagement card ------------------------------------------------------- */
+
+.engagement-card {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.engagement-card--highlight {
+  background: var(--surface-overlay);
+  border-color: var(--accent-primary);
+  box-shadow: var(--elevation-2);
+}
+
+.engagement-card h3 {
+  font-size: var(--text-heading-m);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-2);
+}
+
+.engagement-price {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-m);
+  color: var(--text-tertiary);
+}
+
+.engagement-price--set {
+  color: var(--text-accent);
+}
+
+.engagement-price-flag {
+  color: var(--status-warning);
+  font-size: var(--text-label);
+  margin-inline-start: var(--space-2);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.engagement-includes {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-4);
+}
+
+/* Shared spec-sheet primitives (engagement + team cards) ---------------- */
+
+.spec-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.spec-value {
+  margin: 0;
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+}
+
+.dash-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dash-list li {
+  display: flex;
+  gap: 10px;
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+}
+
+.dash-list li::before {
+  content: '—';
+  color: var(--accent-primary);
+  font-family: var(--font-mono);
+  line-height: var(--lh-normal);
+}
+
+/* Team card ------------------------------------------------------------- */
+
+.team-card {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--space-8);
+  align-items: start;
+  padding: var(--space-8);
+}
+
+.team-card-photo {
+  position: relative;
+  width: 180px;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  background: var(--surface-overlay);
+}
+
+.team-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-card-initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-display-m);
+  color: var(--fg-4);
+}
+
+.team-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.team-card h3 {
+  font-size: var(--text-heading-l);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-1);
+}
+
+.team-card-role {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.team-card-bio {
+  margin: 0;
+  font-size: var(--text-body-m);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.team-card .dash-list {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-4);
+}
+
+.team-card-links {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.team-card-links a {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+.team-card-links a:hover {
+  color: var(--accent-primary-hover);
+}
+
+@media (max-width: 860px) {
+  .team-card {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* Testimonial ----------------------------------------------------------- */
+
+.testimonial {
+  margin: 0;
+  border-inline-start: 2px solid var(--accent-primary);
+  padding-block: var(--space-6);
+  padding-inline: var(--space-6) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  height: 100%;
+}
+
+.testimonial blockquote {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body-l);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+.testimonial figcaption {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.testimonial-name {
+  font-family: var(--font-display);
+  font-size: var(--text-body-m);
+  color: var(--fg-0);
+}
+
+.testimonial-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+}
+
+.testimonial-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-accent);
+  text-decoration: none;
+  margin-top: var(--space-2);
+}
+
+.placeholder-flag {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--status-warning);
+  border: 1px solid var(--status-warning);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+/* Stat (hero metrics row) ----------------------------------------------- */
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-6);
+  border-inline-start: 1px solid var(--border-subtle);
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-display-m);
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+  line-height: var(--lh-tight);
+}
+
+.stat-label {
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-wide);
+}
