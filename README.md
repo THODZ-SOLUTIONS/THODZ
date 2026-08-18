@@ -1,9 +1,6 @@
 # THODZ Solutions website
 
-Marketing site for THODZ SOLUTIONS, a full-stack engineering studio. Built with
-Next.js 16 (App Router), ported directly from the [THODZ Solutions Design
-System](../../../Users/PC/Downloads/THODZ%20Solutions%20Design%20System):
-same tokens, same components, same voice.
+Marketing site for THODZ SOLUTIONS, a full-stack engineering studio.
 
 ## Stack
 
