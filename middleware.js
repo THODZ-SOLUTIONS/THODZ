@@ -9,6 +9,10 @@ import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
 //
 // /admin is the exception: it lives outside the locale tree and is gated by
 // Supabase Auth instead — the session is refreshed here on every request.
+//
+// This stays middleware.js (not Next 16's proxy.js) on purpose: proxy.js is
+// locked to the Node.js runtime, which the Cloudflare OpenNext adapter can't
+// run — middleware.js keeps the edge runtime the deploy requires.
 
 function detectLocale(request) {
   const cookie = request.cookies.get('NEXT_LOCALE')?.value;
@@ -64,7 +68,7 @@ async function adminAuth(request) {
   return response;
 }
 
-export function proxy(request) {
+export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
