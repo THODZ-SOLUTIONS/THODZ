@@ -7,8 +7,9 @@ export default function robots() {
         userAgent: '*',
         allow: '/',
         // Nothing user-facing lives under /api; keeping it out of the index
-        // avoids the contact endpoint showing up in search results.
-        disallow: '/api/',
+        // avoids the contact endpoint showing up in search results. /admin
+        // is the private submissions dashboard.
+        disallow: ['/api/', '/admin'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
