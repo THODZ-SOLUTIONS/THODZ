@@ -1,4 +1,5 @@
 @import './tokens/colors.css';
+@import './tokens/font-faces.css';
 @import './tokens/fonts.css';
 @import './tokens/typography.css';
 @import './tokens/spacing.css';
@@ -6,9 +7,33 @@
 @import './tokens/effects.css';
 @import './tokens/motifs.css';
 @import './tokens/base.css';
+@import './components/button.css';
+@import './components/controls.css';
+@import './components/layout.css';
+@import './components/nav.css';
+@import './components/footer.css';
+@import './components/card.css';
+@import './components/sections.css';
+@import './components/hero.css';
+@import './components/pages.css';
+@import './components/prose.css';
+@import './components/motion.css';
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Visually hidden but present for keyboards and screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 img {
@@ -16,21 +41,31 @@ img {
   display: block;
 }
 
+/* Directional icons (back arrows etc.) mirror on RTL locales. */
+[dir='rtl'] .icon-flip-rtl {
+  transform: scaleX(-1);
+}
+
 button {
   font: inherit;
 }
 
-@media (max-width: 860px) {
-  .grid-3 {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  .nav-links-desktop {
-    gap: 14px !important;
-  }
+/* Keyboard users get a visible ring everywhere, mouse users don't. */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
-@media (max-width: 600px) {
-  .grid-3 {
-    grid-template-columns: 1fr !important;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

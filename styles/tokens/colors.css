@@ -1,49 +1,162 @@
-:root{
---bg-void:#07090c;
---bg-0:#0a0e13;
---bg-1:#0d1219;
---bg-2:#121820;
---bg-3:#171e27;
---border-subtle:#1c242d;
---border-default:#252e38;
---border-strong:#37424e;
---fg-0:#f3f6f8;
---fg-1:#e6ecf1;
---fg-2:#aab6c0;
---fg-3:#7c8892;
---fg-4:#525c65;
---cyan-100:#dbe7fd;
---cyan-300:#93b8fb;
---cyan-500:#3b82f6;
---cyan-600:#2f6fe0;
---cyan-700:#2454ab;
---cyan-900:#16294f;
---amber-300:#ffd28a;
---amber-500:#ffb545;
---amber-600:#e8952a;
---amber-900:#5c3d10;
---red-500:#ff5c5c;
---red-700:#b83a3a;
---green-500:#3b82f6;
---surface-page:var(--bg-0);
---surface-raised:var(--bg-1);
---surface-overlay:var(--bg-2);
---surface-sunken:var(--bg-void);
---text-primary:var(--fg-1);
---text-secondary:var(--fg-2);
---text-tertiary:var(--fg-3);
---text-inverse:var(--bg-void);
---text-accent:var(--cyan-500);
---accent-primary:var(--cyan-500);
---accent-primary-hover:var(--cyan-300);
---accent-primary-press:var(--cyan-600);
---accent-secondary:var(--amber-500);
---accent-secondary-hover:var(--amber-300);
---border-focus:var(--cyan-500);
---status-success:var(--cyan-500);
---status-warning:var(--amber-500);
---status-danger:var(--red-500);
---grid-line:rgba(59,130,246,0.08);
---glow-cyan:rgba(59,130,246,0.35);
---glow-amber:rgba(255,181,69,0.3);
+/* Theme-aware color tokens.
+   Light theme lives on :root; dark overrides live under [data-theme="dark"].
+   The inline script in app/layout.js always resolves an explicit theme before
+   first paint, so the prefers-color-scheme block at the bottom exists only for
+   no-JS visitors and must mirror the dark block exactly. */
+
+:root {
+  color-scheme: light;
+
+  /* Neutral ramp. "void" is the sunken band (footer, work strip), bg-0 the
+     page, bg-1/2 raised surfaces. In light mode raised means whiter. */
+  --bg-void: #edf0f4;
+  --bg-0: #f7f8fa;
+  --bg-1: #ffffff;
+  --bg-2: #ffffff;
+  --bg-3: #f2f4f7;
+  --border-subtle: #e7eaf0;
+  --border-default: #dde2e9;
+  --border-strong: #c3cbd6;
+  --fg-0: #0e1116;
+  --fg-1: #1a2029;
+  --fg-2: #4a5462;
+  --fg-3: #6b7583;
+  --fg-4: #98a1ad;
+
+  /* Signal cobalt: the brand accent. */
+  --accent-100: #e8edff;
+  --accent-300: #8fa8ff;
+  --accent-400: #5c7fff;
+  --accent-500: #2e5bff;
+  --accent-600: #2448d1;
+  --accent-700: #1d3aa8;
+  --accent-900: #131f4d;
+
+  --amber-300: #ffd28a;
+  --amber-500: #ffb545;
+  --amber-700: #8a5510;
+  --red-400: #ff5c5c;
+  --red-600: #d93636;
+  --green-400: #4cc38a;
+  --green-600: #1f8a5d;
+
+  /* Semantic layer: components consume these, never the ramps above. */
+  --surface-page: var(--bg-0);
+  --surface-raised: var(--bg-1);
+  --surface-overlay: var(--bg-2);
+  --surface-sunken: var(--bg-void);
+  --text-primary: var(--fg-1);
+  --text-secondary: var(--fg-2);
+  --text-tertiary: var(--fg-3);
+  --text-inverse: #ffffff;
+  --text-accent: var(--accent-500);
+  --accent-primary: var(--accent-500);
+  --accent-primary-hover: var(--accent-600);
+  --accent-primary-press: var(--accent-700);
+  --accent-secondary: #b77816;
+  --accent-secondary-hover: var(--amber-700);
+  --border-focus: var(--accent-500);
+  --status-success: var(--green-600);
+  --status-warning: #b77816;
+  --status-danger: var(--red-600);
+
+  /* Alpha tokens: every translucent accent/veil the site needs, so no
+     component ever hand-types an rgba(). */
+  --accent-alpha-8: rgba(46, 91, 255, 0.08);
+  --accent-alpha-16: rgba(46, 91, 255, 0.16);
+  --accent-alpha-25: rgba(46, 91, 255, 0.25);
+  --nav-veil: rgba(247, 248, 250, 0.82);
+  --grid-line: rgba(46, 91, 255, 0.05);
+  --selection-bg: var(--accent-100);
+  --selection-fg: var(--accent-900);
+  /* Scrims sit on top of screenshots, which are bright in both themes. */
+  --scrim-weak: rgba(7, 9, 12, 0.08);
+  --scrim-strong: rgba(7, 9, 12, 0.35);
+  --glow-accent: rgba(46, 91, 255, 0.25);
+  --glow-amber: rgba(255, 181, 69, 0.3);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-void: #07090c;
+  --bg-0: #0a0e13;
+  --bg-1: #0d1219;
+  --bg-2: #121820;
+  --bg-3: #171e27;
+  --border-subtle: #1c242d;
+  --border-default: #252e38;
+  --border-strong: #37424e;
+  --fg-0: #f3f6f8;
+  --fg-1: #e6ecf1;
+  --fg-2: #aab6c0;
+  --fg-3: #7c8892;
+  --fg-4: #525c65;
+
+  --text-inverse: #07090c;
+  --text-accent: var(--accent-400);
+  --accent-primary: var(--accent-400);
+  --accent-primary-hover: var(--accent-300);
+  --accent-primary-press: var(--accent-500);
+  --accent-secondary: var(--amber-500);
+  --accent-secondary-hover: var(--amber-300);
+  --border-focus: var(--accent-400);
+  --status-success: var(--green-400);
+  --status-warning: var(--amber-500);
+  --status-danger: var(--red-400);
+
+  --accent-alpha-8: rgba(92, 127, 255, 0.1);
+  --accent-alpha-16: rgba(92, 127, 255, 0.18);
+  --accent-alpha-25: rgba(92, 127, 255, 0.28);
+  --nav-veil: rgba(10, 14, 19, 0.82);
+  --grid-line: rgba(92, 127, 255, 0.07);
+  --selection-bg: var(--accent-700);
+  --selection-fg: #f3f6f8;
+  --scrim-weak: rgba(7, 9, 12, 0.12);
+  --scrim-strong: rgba(7, 9, 12, 0.45);
+  --glow-accent: rgba(92, 127, 255, 0.3);
+}
+
+/* No-JS fallback: mirror of the dark block above. Keep the two in sync. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --bg-void: #07090c;
+    --bg-0: #0a0e13;
+    --bg-1: #0d1219;
+    --bg-2: #121820;
+    --bg-3: #171e27;
+    --border-subtle: #1c242d;
+    --border-default: #252e38;
+    --border-strong: #37424e;
+    --fg-0: #f3f6f8;
+    --fg-1: #e6ecf1;
+    --fg-2: #aab6c0;
+    --fg-3: #7c8892;
+    --fg-4: #525c65;
+
+    --text-inverse: #07090c;
+    --text-accent: var(--accent-400);
+    --accent-primary: var(--accent-400);
+    --accent-primary-hover: var(--accent-300);
+    --accent-primary-press: var(--accent-500);
+    --accent-secondary: var(--amber-500);
+    --accent-secondary-hover: var(--amber-300);
+    --border-focus: var(--accent-400);
+    --status-success: var(--green-400);
+    --status-warning: var(--amber-500);
+    --status-danger: var(--red-400);
+
+    --accent-alpha-8: rgba(92, 127, 255, 0.1);
+    --accent-alpha-16: rgba(92, 127, 255, 0.18);
+    --accent-alpha-25: rgba(92, 127, 255, 0.28);
+    --nav-veil: rgba(10, 14, 19, 0.82);
+    --grid-line: rgba(92, 127, 255, 0.07);
+    --selection-bg: var(--accent-700);
+    --selection-fg: #f3f6f8;
+    --scrim-weak: rgba(7, 9, 12, 0.12);
+    --scrim-strong: rgba(7, 9, 12, 0.45);
+    --glow-accent: rgba(92, 127, 255, 0.3);
+  }
 }

@@ -1,5 +1,38 @@
-*{box-sizing:border-box}
-body{background:var(--surface-page);color:var(--text-primary);font-family:var(--font-body);margin:0;-webkit-font-smoothing:antialiased}
-a{color:var(--accent-primary)}
-a:hover{color:var(--accent-primary-hover)}
-::selection{background:var(--cyan-700);color:var(--bg-void)}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: var(--lh-normal);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings default to the display face at a restrained weight; without this
+   they fall through to the UA's 700, the heaviest cut we load. Sizes and
+   margins stay per-usage. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+a {
+  color: var(--accent-primary);
+}
+
+a:hover {
+  color: var(--accent-primary-hover);
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
