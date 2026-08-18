@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-// Contact form intake. Wires to Resend (https://resend.com) when
-// RESEND_API_KEY + CONTACT_TO_EMAIL are set as environment variables in
+// Contact form intake. Submissions are stored in Supabase (the admin
+// dashboard's source of truth) when NEXT_PUBLIC_SUPABASE_URL +
+// SUPABASE_SECRET_KEY are set. Email wires to Resend (https://resend.com)
+// when RESEND_API_KEY + CONTACT_TO_EMAIL are set as environment variables in
 // Vercel; otherwise it logs the submission server-side so nothing is lost,
-// but no email actually goes out. Set both env vars before relying on this
+// but no email actually goes out. Set the env vars before relying on this
 // in production.
 export async function POST(request) {
   let body;
@@ -16,6 +19,30 @@ export async function POST(request) {
   const { name, email, company, type, timeline, details, nda } = body || {};
   if (!name || !email) {
     return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
+  }
+
+  // Primary record: store in Supabase when configured. Email below stays
+  // best-effort — a DB row is the source of truth for the dashboard.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseSecret = process.env.SUPABASE_SECRET_KEY;
+  if (supabaseUrl && supabaseSecret) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseSecret, {
+        auth: { persistSession: false },
+      });
+      const { error } = await supabase.from('contact_submissions').insert({
+        name,
+        email,
+        company: company || null,
+        type: type || null,
+        timeline: timeline || null,
+        details: details || null,
+        nda: Boolean(nda),
+      });
+      if (error) console.error('[contact] Supabase insert failed:', error.message);
+    } catch (err) {
+      console.error('[contact] Supabase insert failed:', err);
+    }
   }
 
   const apiKey = process.env.RESEND_API_KEY;
