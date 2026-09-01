@@ -27,6 +27,12 @@
 .nav-logo {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-logo img {
+  height: 34px;
+  width: auto;
 }
 
 /* Theme-paired logos: exactly one is visible. The media query mirrors the
@@ -55,6 +61,10 @@
   align-items: center;
 }
 
+.nav-links-desktop .btn {
+  white-space: nowrap;
+}
+
 .nav-link {
   color: var(--text-secondary);
   font-size: var(--text-body-s);
@@ -75,27 +85,117 @@
 /* Language switcher --------------------------------------------------- */
 
 .locale-switcher {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  position: relative;
 }
 
-.locale-switcher-link {
-  color: var(--text-tertiary);
+.locale-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-2);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-btn);
+  color: var(--text-secondary);
   font-size: var(--text-label);
   font-family: var(--font-mono);
   letter-spacing: var(--tracking-wide);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
 }
 
-.locale-switcher-link:hover {
+.locale-switcher-trigger:hover,
+.locale-switcher-trigger[aria-expanded='true'] {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.locale-switcher-chevron {
+  transition: rotate var(--duration-fast) var(--ease-standard);
+}
+
+.locale-switcher-trigger[aria-expanded='true'] .locale-switcher-chevron {
+  rotate: 180deg;
+}
+
+.locale-switcher-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  min-width: 160px;
+  padding: var(--space-1);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-btn);
+  box-shadow: var(--elevation-2);
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  animation: nav-menu-in var(--duration-fast) var(--ease-out);
+}
+
+.locale-switcher-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: calc(var(--radius-btn) - 2px);
+  color: var(--text-secondary);
+  font-size: var(--text-body-s);
+  text-decoration: none;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+}
+
+.locale-switcher-option:hover {
+  color: var(--text-primary);
+  background: var(--surface-raised);
+}
+
+.locale-switcher-option--active {
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+/* Inline variant: every locale visible, used in the mobile menu. */
+.locale-segmented {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 3px;
+  gap: 2px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-btn);
+}
+
+.locale-segmented-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  min-height: 30px;
+  border-radius: calc(var(--radius-btn) - 3px);
+  color: var(--text-secondary);
+  font-size: var(--text-body-s);
+  text-decoration: none;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+}
+
+.locale-segmented-option:hover {
   color: var(--text-primary);
 }
 
-.locale-switcher-link--active {
-  color: var(--text-accent);
+.locale-segmented-option--active {
+  color: var(--text-primary);
+  background: var(--surface-overlay);
   font-weight: var(--weight-medium);
+  box-shadow: var(--elevation-1);
 }
 
 .theme-toggle {
@@ -146,6 +246,14 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.nav-mobile-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
 .nav-mobile .btn {
   margin-top: var(--space-4);
 }
@@ -161,17 +269,30 @@
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1000px) {
   .nav-links-desktop {
     gap: var(--space-4);
   }
 }
 
-@media (max-width: 760px) {
+/* Below 900px the full bar no longer fits without the CTA wrapping, so
+   tablets get the hamburger too. */
+@media (max-width: 900px) {
   .nav-links-desktop {
     display: none;
   }
   .nav-toggle {
     display: inline-flex;
+  }
+  /* With links collapsed the bar is just logo + hamburger, so the wordmark
+     can afford more presence, and the gutter tightens to match the page. */
+  .nav-inner {
+    padding: var(--space-3) var(--space-5);
+  }
+  .nav-mobile {
+    padding-inline: var(--space-5);
+  }
+  .nav-logo img {
+    height: 40px;
   }
 }

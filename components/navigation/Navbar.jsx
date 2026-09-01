@@ -20,20 +20,18 @@ function NavLogo({ className }) {
       <Image
         src="/assets/logo-full.svg"
         alt="THODZ"
-        width={240}
+        width={193}
         height={64}
         priority
         className={`logo-light ${className}`.trim()}
-        style={{ height: 34, width: 'auto' }}
       />
       <Image
         src="/assets/logo-full-dark.svg"
         alt="THODZ"
-        width={240}
+        width={193}
         height={64}
         priority
         className={`logo-dark ${className}`.trim()}
-        style={{ height: 34, width: 'auto' }}
       />
     </>
   );
@@ -113,8 +111,8 @@ export function Navbar({ locale, t }) {
               {l.label}
             </Link>
           ))}
-          <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <LocaleSwitcher locale={locale} label={t.languageLabel} />
+          <div className="nav-mobile-controls">
+            <LocaleSwitcher locale={locale} label={t.languageLabel} variant="inline" />
             <ThemeToggle />
           </div>
           <Link href={`/${locale}/contact`} onClick={() => setOpen(false)} className="btn btn--primary btn--md">
