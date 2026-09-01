@@ -1,9 +1,6 @@
 # THODZ Solutions website
 
-Marketing site for THODZ SOLUTIONS, a full-stack engineering studio. Built with
-Next.js 16 (App Router), ported directly from the [THODZ Solutions Design
-System](../../../Users/PC/Downloads/THODZ%20Solutions%20Design%20System):
-same tokens, same components, same voice.
+Marketing site for THODZ SOLUTIONS, a full-stack engineering studio.
 
 ## Stack
 
@@ -148,6 +145,31 @@ same way.
    contact form to send real email.
 4. Deploy. Point your domain (`thodz.com`) at the Vercel project under
    Project → Settings → Domains.
+
+## Deploying to Cloudflare Workers
+
+The site runs on Cloudflare through `@opennextjs/cloudflare`. Two things are
+load-bearing:
+
+- `open-next.config.ts` sets `incrementalCache: staticAssetsIncrementalCache`.
+  Every page here is fully prerendered (`generateStaticParams` for en/fr/ar
+  plus `dynamicParams = false`), and OpenNext serves prerendered pages through
+  the incremental cache. With the default dummy cache the worker can't find
+  `/en`, `dynamicParams = false` forbids rendering on demand, and every locale
+  route 404s.
+- Deploy with the OpenNext CLI, never plain `wrangler deploy`. The
+  `populateCache` step that copies the prerendered pages into the assets
+  bundle only runs as part of the OpenNext command.
+
+```bash
+npm run cf:deploy
+```
+
+Use `npm run cf:preview` to run the built worker locally first.
+
+For Workers Builds in the dashboard, set the build command to
+`npx opennextjs-cloudflare build` and the deploy command to
+`npx opennextjs-cloudflare deploy`.
 
 ## Pushing to GitHub
 
