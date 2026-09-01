@@ -8,6 +8,12 @@ import staticAssetsIncrementalCache from "@opennextjs/cloudflare/overrides/incre
 // into the Worker's assets — read-only, no revalidation, which is exactly
 // what a fully static site needs. Populated by `opennextjs-cloudflare
 // deploy` (plain `wrangler deploy` skips that step).
-export default defineCloudflareConfig({
-  incrementalCache: staticAssetsIncrementalCache,
-});
+export default {
+  ...defineCloudflareConfig({
+    incrementalCache: staticAssetsIncrementalCache,
+  }),
+  // `npm run build` is `opennextjs-cloudflare build`, and OpenNext's default
+  // Next.js build step is `npm run build` — without this override it calls
+  // itself forever. Point it straight at Next.
+  buildCommand: "npx next build",
+};
