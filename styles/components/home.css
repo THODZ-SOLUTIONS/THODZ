@@ -1,0 +1,1110 @@
+/* Home page sections (redesign).
+
+   Everything here is written against the semantic tokens in tokens/colors.css,
+   never raw hex. The design was handed over as a dark-only mockup; routing its
+   values through the surface, text and border tokens is what makes the light
+   theme and the no-JS prefers-color-scheme fallback come out right without a
+   second set of rules to keep in sync. */
+
+/* --------------------------------------------------------------- shared --- */
+
+.home-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* "01 — Start from the problem": the numeral is accented, the label is not. */
+.section-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-5);
+}
+.section-index b {
+  color: var(--text-accent);
+  font-weight: var(--weight-regular);
+}
+
+.home-h2 {
+  font-size: var(--text-display-l);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+  margin: 0;
+  max-width: 18ch;
+}
+
+.home-lede {
+  font-size: var(--text-body-m);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 44ch;
+}
+
+/* Section head where the title sits left and the lede sits right, baseline-ish
+   aligned. Collapses to stacked below the lg breakpoint. */
+.home-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-10);
+  align-items: end;
+}
+@media (max-width: 900px) {
+  .home-head {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  .home-h2 {
+    max-width: none;
+  }
+}
+
+/* ----------------------------------------------------------------- hero --- */
+
+.hero-v2 {
+  position: relative;
+  padding: clamp(56px, 8vw, 104px) 0 clamp(48px, 6vw, 88px);
+  overflow: hidden;
+}
+
+.hero-v2-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+@media (max-width: 960px) {
+  .hero-v2-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-v2-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-6);
+}
+/* The short accent rule that leads the eyebrow. */
+.hero-v2-eyebrow::before {
+  content: '';
+  inline-size: 22px;
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-primary);
+  flex: none;
+}
+
+.hero-v2-title {
+  font-size: var(--text-display-xl);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-6);
+  max-width: 13ch;
+}
+
+.hero-v2-sub {
+  font-size: var(--text-body-l);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-8);
+  max-width: 46ch;
+}
+
+.hero-v2-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+/* Two reassurance ticks under the CTAs, divided by a hairline above. */
+.hero-v2-assurances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+.hero-v2-assurance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body-s);
+  color: var(--text-secondary);
+}
+.hero-v2-assurance svg {
+  color: var(--accent-primary);
+  flex: none;
+}
+
+/* Right-hand composition: an abstract product collage on a dotted field. */
+.hero-v2-art {
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  background-image: var(--dot-pattern);
+  background-size: 18px 18px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+@media (max-width: 960px) {
+  .hero-v2-art {
+    aspect-ratio: 4 / 3;
+  }
+}
+@media (max-width: 560px) {
+  .hero-v2-art {
+    display: none;
+  }
+}
+.hero-v2-art svg {
+  inline-size: 100%;
+  block-size: 100%;
+  display: block;
+}
+
+/* --------------------------------------------------------------- marquee -- */
+
+.marquee {
+  border-block: 1px solid var(--border-subtle);
+  background: var(--surface-sunken);
+  padding: var(--space-5) 0;
+  overflow: hidden;
+  /* Fade both ends into the band rather than cutting words mid-glyph. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+/* No gap on the track: each item carries its own trailing margin so the two
+   halves are exactly equal and the -50% keyframe lands on the seam. A gap
+   here would add one extra gutter and make the loop visibly jump. */
+.marquee-track {
+  display: flex;
+  inline-size: max-content;
+  animation: marquee-scroll 42s linear infinite;
+}
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  margin-inline-end: var(--space-10);
+  font-size: var(--text-heading-m);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.marquee-item::after {
+  content: '';
+  inline-size: 5px;
+  block-size: 5px;
+  rotate: 45deg;
+  background: var(--accent-primary);
+  flex: none;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* The track holds the list twice; -50% lands exactly on the seam. */
+    transform: translateX(-50%);
+  }
+}
+/* In RTL the flex row runs right-to-left, so the track's second half sits off
+   the left edge and the loop has to travel the other way. `animation-direction:
+   reverse` would start the track at -50%, which in RTL is already past the
+   content and leaves the band empty, so RTL gets its own keyframe. */
+@keyframes marquee-scroll-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+[dir='rtl'] .marquee-track {
+  animation-name: marquee-scroll-rtl;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    /* Without the scroll the duplicate half is just noise for a screen reader
+       user who now sees a static list, so collapse to one screenful. */
+    inline-size: 100%;
+    overflow: hidden;
+    flex-wrap: wrap;
+  }
+}
+
+/* -------------------------------------------------------------- problem --- */
+
+.problem-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  gap: var(--space-8);
+  margin-top: var(--space-12);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .problem-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.problem-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.problem-tab {
+  inline-size: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  text-align: start;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-medium);
+  line-height: var(--lh-snug);
+  cursor: pointer;
+  transition: background var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+.problem-tab:hover {
+  border-color: var(--border-strong);
+}
+.problem-tab[aria-selected='true'] {
+  background: var(--fg-0);
+  border-color: var(--fg-0);
+  color: var(--surface-page);
+}
+.problem-tab-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  padding-top: 2px;
+  flex: none;
+}
+.problem-tab[aria-selected='true'] .problem-tab-index {
+  color: var(--surface-page);
+  opacity: 0.6;
+}
+
+.problem-panel {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  padding: clamp(20px, 3vw, 36px);
+}
+.problem-panel-title {
+  font-size: var(--text-heading-xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+  margin: var(--space-4) 0 var(--space-6);
+}
+
+.problem-deliverables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+.problem-deliverable {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-overlay);
+  font-size: var(--text-body-s);
+  color: var(--text-primary);
+  line-height: var(--lh-snug);
+}
+.problem-deliverable svg {
+  color: var(--accent-primary);
+  flex: none;
+  margin-top: 2px;
+}
+
+.problem-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+.problem-meta-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+.problem-meta-value {
+  font-size: var(--text-body-s);
+  color: var(--text-primary);
+  margin: 0;
+}
+.problem-meta-value a {
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+/* The nine disciplines, with the ones this job touches lit up. */
+.problem-disciplines {
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+.problem-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.problem-chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  padding: 5px var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  transition: color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard);
+}
+.problem-chip[data-on='true'] {
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+  background: transparent;
+}
+
+/* -------------------------------------------------------------- shipped --- */
+
+.shipped-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.carousel-nav {
+  display: flex;
+  gap: var(--space-2);
+}
+.carousel-btn {
+  inline-size: 40px;
+  block-size: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard);
+}
+.carousel-btn:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  background: var(--accent-alpha-8);
+}
+.carousel-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+[dir='rtl'] .carousel-btn svg {
+  transform: scaleX(-1);
+}
+
+.shipped-slide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  margin-top: var(--space-10);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  padding: clamp(18px, 2.5vw, 28px);
+}
+@media (max-width: 900px) {
+  .shipped-slide {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shipped-shot-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+/* Sits above the frame rather than on top of the screenshot, which may be
+   light or dark depending on the project. */
+.shipped-shot-counter {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+
+.shipped-shot {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-subtle);
+  aspect-ratio: 10 / 7;
+}
+.shipped-shot img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Projects with no screenshot yet: the blueprint motif plus the project's
+   own category, so the frame reads as deliberate rather than broken. */
+.shipped-shot--empty,
+.shipped-card-shot--empty {
+  background-image: var(--grid-pattern);
+  background-size: var(--grid-cell) var(--grid-cell);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+.shot-placeholder {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: center;
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-raised);
+}
+
+.shipped-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-2) 0;
+}
+.shipped-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.shipped-title {
+  font-size: var(--text-display-s);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+  margin: var(--space-3) 0 var(--space-6);
+}
+
+/* Before / after pair. "After" carries the accent tint. */
+.shipped-ba {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+@media (max-width: 520px) {
+  .shipped-ba {
+    grid-template-columns: 1fr;
+  }
+}
+.shipped-ba-cell {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-overlay);
+}
+.shipped-ba-cell--after {
+  border-color: var(--accent-primary);
+  background: var(--accent-alpha-8);
+}
+.shipped-ba-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+.shipped-ba-cell--after .shipped-ba-label {
+  color: var(--text-accent);
+}
+.shipped-ba-text {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.shipped-stack {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+  margin-top: var(--space-5);
+}
+
+/* Progress rail under the slide, one segment per project. */
+.shipped-rail {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+.shipped-rail-seg {
+  block-size: 2px;
+  flex: 1;
+  border-radius: var(--radius-pill);
+  background: var(--border-default);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.shipped-rail-seg[data-on='true'] {
+  background: var(--accent-primary);
+}
+
+/* The four-up grid of the remaining projects. */
+.shipped-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+@media (max-width: 1040px) {
+  .shipped-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 540px) {
+  .shipped-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shipped-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  padding: var(--space-4);
+  text-decoration: none;
+  transition: border-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+.shipped-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.shipped-card-shot {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-4);
+}
+.shipped-card-shot img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.shipped-card-title {
+  font-size: var(--text-heading-s);
+  font-weight: var(--weight-semibold);
+  line-height: var(--lh-snug);
+  color: var(--fg-0);
+  margin: var(--space-2) 0;
+}
+.shipped-card-desc {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-4);
+  flex: 1;
+}
+
+.shipped-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-top: var(--space-10);
+}
+.shipped-foot-tags {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-s);
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------ quote band -- */
+
+.quote-band {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  padding: clamp(24px, 4vw, 48px);
+}
+.quote-band-mark {
+  color: var(--accent-primary);
+  margin-bottom: var(--space-5);
+}
+.quote-band-text {
+  font-size: var(--text-heading-xl);
+  line-height: 1.4;
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-medium);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-8);
+}
+.quote-band-who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.quote-band-avatar {
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  object-fit: cover;
+  flex: none;
+}
+.quote-band-name {
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+}
+.quote-band-role {
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------- timeline --- */
+
+.timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-12);
+}
+@media (max-width: 960px) {
+  .timeline-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .timeline-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.timeline-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  padding: var(--space-6);
+}
+/* The accent rule that caps each card. */
+.timeline-card::before {
+  content: '';
+  display: block;
+  inline-size: 38px;
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-primary);
+  margin-bottom: var(--space-5);
+}
+.timeline-when {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+.timeline-title {
+  font-size: var(--text-heading-s);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+  margin: var(--space-3) 0 var(--space-3);
+}
+.timeline-text {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- pricing --- */
+
+/* Two yes/no questions that highlight whichever engagement matches. */
+.pricing-quiz {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: center;
+  margin-top: var(--space-10);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+}
+.pricing-q {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.pricing-q-label {
+  font-size: var(--text-body-s);
+  color: var(--text-primary);
+}
+.pricing-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-subtle);
+}
+.pricing-toggle button {
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: var(--text-body-s);
+  padding: 6px var(--space-4);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard);
+}
+.pricing-toggle button[aria-pressed='true'] {
+  background: var(--fg-0);
+  color: var(--surface-page);
+  font-weight: var(--weight-medium);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  align-items: stretch;
+}
+@media (max-width: 960px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  padding: var(--space-6);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+.pricing-card[data-match='true'] {
+  border-color: var(--accent-primary);
+}
+.pricing-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.pricing-card-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+.pricing-match {
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  color: var(--text-inverse);
+  background: var(--accent-primary);
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-pill);
+}
+.pricing-name {
+  font-size: var(--text-heading-m);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-3);
+}
+.pricing-best {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-5);
+}
+.pricing-figure {
+  font-size: var(--text-heading-l);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-0);
+  margin-bottom: var(--space-5);
+}
+/* No price is set in lib/content.js on purpose; this is the honest stand-in. */
+.pricing-figure--scoped {
+  font-size: var(--text-heading-m);
+  color: var(--text-secondary);
+}
+.pricing-figure small {
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
+  margin-inline-start: var(--space-2);
+}
+.pricing-billing {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.pricing-includes {
+  list-style: none;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+.pricing-includes li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+.pricing-includes svg {
+  color: var(--accent-primary);
+  flex: none;
+  margin-top: 3px;
+}
+
+/* ------------------------------------------------------------------ faq --- */
+
+.faq-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .faq-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.faq-aside {
+  position: sticky;
+  top: calc(var(--nav-h, 64px) + var(--space-8));
+}
+@media (max-width: 900px) {
+  .faq-aside {
+    position: static;
+  }
+}
+
+/* The FAQ disclosure itself is styled in sections.css: it is a native
+   <details>, shared with /pricing, and works without JavaScript. Only the
+   two-column layout around it belongs here. */
+
+/* ---------------------------------------------------------------- start --- */
+
+.start-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: clamp(24px, 4vw, 48px);
+  margin-top: var(--space-12);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .start-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.start-panel {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  padding: clamp(20px, 3vw, 32px);
+}
+
+.start-aside-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+}
+.start-channel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  text-decoration: none;
+  margin-bottom: var(--space-3);
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+.start-channel:hover {
+  border-color: var(--accent-primary);
+}
+.start-channel-icon {
+  inline-size: 38px;
+  block-size: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: var(--accent-alpha-8);
+  color: var(--accent-primary);
+}
+.start-channel-title {
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
+}
+.start-channel-sub {
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+}
+.start-note {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-tertiary);
+  margin-top: var(--space-5);
+}
+
+/* ------------------------------------------------------------ open source -- */
+
+.oss-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-10);
+}
+@media (max-width: 900px) {
+  .oss-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oss-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  padding: var(--space-6);
+  text-decoration: none;
+  transition: border-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+.oss-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.oss-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+}
+/* The version pill is the checkable bit: it matches what pub.dev serves. */
+.oss-version {
+  color: var(--text-accent);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2);
+}
+.oss-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-m);
+  font-weight: var(--weight-medium);
+  color: var(--fg-0);
+  margin: 0 0 var(--space-2);
+  word-break: break-word;
+}
+.oss-tagline {
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-3);
+}
+.oss-desc {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-5);
+  flex: 1;
+}
+.oss-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body-s);
+  font-weight: var(--weight-medium);
+  color: var(--text-accent);
+}
+[dir='rtl'] .oss-link svg {
+  transform: scaleX(-1);
+}

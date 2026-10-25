@@ -75,27 +75,87 @@
 /* Language switcher --------------------------------------------------- */
 
 .locale-switcher {
+  position: relative;
+  display: inline-flex;
+}
+
+.locale-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-btn);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+.locale-trigger:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.locale-trigger-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+}
+.locale-chevron {
+  transition: rotate var(--duration-fast) var(--ease-standard);
+}
+.locale-chevron--open {
+  rotate: 180deg;
+}
+
+.locale-menu {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+  /* Anchored to the inline-end edge so it never overflows the viewport on
+     either writing direction. */
+  inset-inline-end: 0;
+  z-index: 60;
+  min-inline-size: 190px;
+  margin: 0;
+  padding: var(--space-2);
+  list-style: none;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-2);
+}
+
+.locale-item {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-}
-
-.locale-switcher-link {
-  color: var(--text-tertiary);
-  font-size: var(--text-label);
-  font-family: var(--font-mono);
-  letter-spacing: var(--tracking-wide);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--text-body-s);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard);
+  white-space: nowrap;
 }
-
-.locale-switcher-link:hover {
+.locale-item:hover,
+.locale-item:focus-visible {
+  background: var(--surface-raised);
   color: var(--text-primary);
 }
-
-.locale-switcher-link--active {
+.locale-item--active {
   color: var(--text-accent);
   font-weight: var(--weight-medium);
+}
+/* The check sits at the far edge whichever way the text runs. */
+.locale-item svg:last-child {
+  margin-inline-start: auto;
+}
+.locale-item-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-tertiary);
+  inline-size: 2.2em;
 }
 
 .theme-toggle {
@@ -174,4 +234,29 @@
   .nav-toggle {
     display: inline-flex;
   }
+}
+
+/* "Automatic" sits above the languages and is a button, not a link: it clears
+   the cookie and re-enters middleware rather than navigating to a locale. */
+.locale-item--auto {
+  inline-size: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin-bottom: var(--space-1);
+  padding-bottom: var(--space-3);
+}
+.locale-item-hint {
+  display: block;
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+.locale-item--auto .locale-item-code {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
 }

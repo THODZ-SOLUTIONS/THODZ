@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { JsonLd } from '@/components/core/JsonLd';
 import { SectionHead } from '@/components/marketing/SectionHead';
+import { PageHead } from '@/components/marketing/PageHead';
 import { EngagementCard } from '@/components/marketing/EngagementCard';
 import { Faq } from '@/components/marketing/Faq';
 import { SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
@@ -14,11 +16,12 @@ export async function generateMetadata({ params }) {
     title: t.metaTitle,
     description: t.metaDescription,
     alternates: localeAlternates('/pricing'),
-    openGraph: {
+    ...pageOpenGraph({
+      locale,
+      path: '/pricing',
       title: `${t.metaTitle} · THODZ SOLUTIONS`,
       description: t.ogDescription,
-      url: `${SITE_URL}/${locale}/pricing`,
-    },
+    }),
   };
 }
 
@@ -42,13 +45,9 @@ export default async function PricingPage({ params }) {
         }}
       />
 
-      <div className="page-head bg-grid">
-        <div className="container">
-          <SectionHead eyebrow={t.headEyebrow} title={t.headTitle} sub={t.headSub} />
-        </div>
-      </div>
+      <PageHead eyebrow={t.headEyebrow} title={t.headTitle} sub={t.headSub} />
 
-      <div className="container" style={{ paddingBlock: '56px 24px' }}>
+      <div className="container" style={{ paddingBlock: '48px 24px' }}>
         <div className="grid-4" style={{ alignItems: 'stretch' }}>
           {ENGAGEMENTS.map((e) => (
             <EngagementCard key={e.name} {...e} t={dict.engagementCard} />

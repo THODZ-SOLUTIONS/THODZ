@@ -1,8 +1,10 @@
 import { Icon } from '@/components/core/Icon';
-import { ContactForm } from './ContactForm';
+import { ContactForm } from '@/components/forms/ContactForm';
 import { CONTACT, SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n';
+import { PageHead } from '@/components/marketing/PageHead';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
@@ -11,11 +13,12 @@ export async function generateMetadata({ params }) {
     title: t.metaTitle,
     description: t.metaDescription,
     alternates: localeAlternates('/contact'),
-    openGraph: {
+    ...pageOpenGraph({
+      locale,
+      path: '/contact',
       title: `${t.metaTitle} · THODZ SOLUTIONS`,
       description: t.ogDescription,
-      url: `${SITE_URL}/${locale}/contact`,
-    },
+    }),
   };
 }
 
@@ -26,12 +29,7 @@ export default async function ContactPage({ params }) {
 
   return (
     <div style={{ minHeight: 600 }}>
-      <div className="page-head bg-grid" style={{ padding: '72px 0 40px' }}>
-        <div className="container container--sm">
-          <div className="eyebrow">{t.eyebrow}</div>
-          <h1 style={{ fontSize: 'var(--text-display-m)' }}>{t.title}</h1>
-        </div>
-      </div>
+      <PageHead eyebrow={t.eyebrow} title={t.title} sub={t.sub} />
 
       <div className="container container--sm" style={{ paddingBlock: '40px 48px' }}>
         <Channels t={t} />

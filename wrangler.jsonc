@@ -14,6 +14,13 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Without this binding the OpenNext adapter answers /_next/image with the
+  // ORIGINAL file (see @opennextjs/cloudflare templates/images.js), so every
+  // case-study screenshot would ship at full size and next/image's srcset
+  // would buy nothing. Requires Images to be enabled for the account.
+  "images": {
+    "binding": "IMAGES"
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",

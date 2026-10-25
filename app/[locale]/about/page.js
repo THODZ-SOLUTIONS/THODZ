@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { SectionHead } from '@/components/marketing/SectionHead';
+import { PageHead } from '@/components/marketing/PageHead';
 import { TeamCard } from '@/components/marketing/TeamCard';
 import { SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
@@ -12,11 +14,12 @@ export async function generateMetadata({ params }) {
     title: t.metaTitle,
     description: t.metaDescription,
     alternates: localeAlternates('/about'),
-    openGraph: {
+    ...pageOpenGraph({
+      locale,
+      path: '/about',
       title: `${t.metaTitle} · THODZ SOLUTIONS`,
       description: t.ogDescription,
-      url: `${SITE_URL}/${locale}/about`,
-    },
+    }),
   };
 }
 
@@ -27,22 +30,18 @@ export default async function AboutPage({ params }) {
 
   return (
     <div>
-      <div className="page-head bg-grid" style={{ padding: '96px 0 72px', textAlign: 'center' }}>
-        <div className="container">
-          <h1 style={{ fontSize: 'var(--text-display-l)', maxWidth: 760, marginInline: 'auto' }}>
-            {t.heroTitle}
-          </h1>
-        </div>
-      </div>
+      <PageHead eyebrow={t.headEyebrow} title={t.heroTitle} />
 
+      {/* Left-aligned to the same gutter as the page head; the measure is
+          capped on the paragraphs rather than by centring a narrow column. */}
       <div
-        className="container container--md"
-        style={{ paddingBlock: 72, display: 'flex', flexDirection: 'column', gap: 28 }}
+        className="container"
+        style={{ paddingBlock: 64, display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 'none' }}
       >
-        <p className="case-hero-summary" style={{ maxWidth: 'none', margin: 0 }}>
+        <p className="case-hero-summary" style={{ maxWidth: '68ch', margin: 0 }}>
           {t.intro1}
         </p>
-        <p className="case-hero-summary" style={{ maxWidth: 'none', margin: 0 }}>
+        <p className="case-hero-summary" style={{ maxWidth: '68ch', margin: 0 }}>
           {t.intro2}
         </p>
       </div>

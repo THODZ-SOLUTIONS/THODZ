@@ -4,9 +4,10 @@ import { CONTACT, SOCIALS } from '@/lib/config';
 
 export function Footer({ locale, t }) {
   const company = [
-    { label: t.nav.services, href: `/${locale}#services` },
+    { label: t.nav.problems, href: `/${locale}#problems` },
     { label: t.nav.work, href: `/${locale}/work` },
     { label: t.nav.pricing, href: `/${locale}/pricing` },
+    { label: t.nav.faq, href: `/${locale}#faq` },
     { label: t.nav.about, href: `/${locale}/about` },
     { label: t.footer.contact, href: `/${locale}/contact` },
   ];
