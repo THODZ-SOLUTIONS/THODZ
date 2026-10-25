@@ -14,13 +14,16 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // TODO(images): enable Images for this account, then uncomment.
+  //
   // Without this binding the OpenNext adapter answers /_next/image with the
   // ORIGINAL file (see @opennextjs/cloudflare templates/images.js), so every
-  // case-study screenshot would ship at full size and next/image's srcset
-  // would buy nothing. Requires Images to be enabled for the account.
-  "images": {
-    "binding": "IMAGES"
-  },
+  // case-study screenshot ships at full size and next/image's srcset buys
+  // nothing. The config is valid — `wrangler deploy --dry-run` resolves
+  // env.IMAGES — but the deploy fails until Images is turned on for the
+  // account, which is what broke Workers Builds on this branch.
+  //
+  // "images": { "binding": "IMAGES" },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
