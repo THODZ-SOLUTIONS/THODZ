@@ -1,20 +1,10 @@
 'use client';
-
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@/components/core/Icon';
 import { LOCALES, LOCALE_NAMES } from '@/lib/i18n/config';
 
-/**
- * Language switcher: a dropdown that swaps the locale segment of the current
- * path, so the visitor stays on the page they're reading. The cookie makes
- * the choice sticky for future un-prefixed visits (read by middleware.js).
- *
- * A menu rather than a <select>: the options are navigations, so they have to
- * be real links — crawlable, and openable in a new tab. Keyboard handling is
- * the usual menu-button contract (arrows, Home/End, Escape, click-outside).
- */
 const LOCALE_COOKIE = 'NEXT_LOCALE';
 
 function hasPinnedLocale() {
@@ -25,35 +15,59 @@ function hasPinnedLocale() {
   }
 }
 
-export function LocaleSwitcher({ locale, label, autoLabel, autoHint }) {
-  const pathname = usePathname() || `/${locale}`;
-  const rest = pathname.replace(/^\/[^/]+/, '');
+// Language switcher. Swaps the locale segment of the current path, so the
+// visitor stays on the page they're reading. The cookie makes the choice
+// sticky for future un-prefixed visits (read by middleware.js).
+//
+// "Automatic" clears that cookie rather than setting it, handing the decision
+// back to middleware.js and its Accept-Language negotiation. Without it a
+// visitor who once picked a language could never return to following their
+// browser. It needs a full navigation, not a client route change, so the
+// request actually passes through middleware again.
+//
+// Two presentations of the same links:
+//  - "menu" (default): a compact globe + code trigger that opens a dropdown.
+//    Used in the desktop bar where horizontal space is scarce.
+//  - "inline": all locales visible as a segmented control. Used in the mobile
+//    menu, where a dropdown nested inside a menu is one tap too many and the
+//    panel has room to show every option.
+export function LocaleSwitcher({ locale, label, autoLabel, autoHint, variant = 'menu' }) {
   const [open, setOpen] = useState(false);
   // null until mounted: the cookie is only readable on the client, and the
-  // server has no way to know whether this visitor pinned a language.
+  // server cannot know whether this visitor pinned a language.
   const [pinned, setPinned] = useState(null);
-  const wrapRef = useRef(null);
-  const btnRef = useRef(null);
-  const menuId = useId();
+  const rootRef = useRef(null);
+  const pathname = usePathname() || `/${locale}`;
+  const rest = pathname.replace(/^\/[^/]+/, '');
 
   useEffect(() => {
     setPinned(hasPinnedLocale());
-  }, []);
+  }, [pathname]);
 
-  // Close on click-outside and on Escape, and return focus to the trigger so
-  // keyboard users aren't dropped at the top of the document.
+  function remember(l) {
+    document.cookie = `${LOCALE_COOKIE}=${l};path=/;max-age=31536000;samesite=lax`;
+    setPinned(true);
+  }
+
+  function chooseAuto() {
+    document.cookie = `${LOCALE_COOKIE}=;path=/;max-age=0;samesite=lax`;
+    setPinned(false);
+    setOpen(false);
+    window.location.assign(rest || '/');
+  }
+
+  // Navigation (including same-page locale swaps) closes the menu.
   useEffect(() => {
-    if (!open) return undefined;
+    setOpen(false);
+  }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
     function onPointerDown(e) {
-      if (!wrapRef.current?.contains(e.target)) setOpen(false);
+      if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false);
     }
     function onKeyDown(e) {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setOpen(false);
-        btnRef.current?.focus();
-      }
+      if (e.key === 'Escape') setOpen(false);
     }
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
@@ -63,113 +77,87 @@ export function LocaleSwitcher({ locale, label, autoLabel, autoHint }) {
     };
   }, [open]);
 
-  function focusItem(i) {
-    const items = wrapRef.current?.querySelectorAll('[role="menuitem"]');
-    if (!items?.length) return;
-    items[(i + items.length) % items.length].focus();
-  }
-
-  function onMenuKeyDown(e) {
-    const items = [...(wrapRef.current?.querySelectorAll('[role="menuitem"]') || [])];
-    const i = items.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      focusItem(i + 1);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      focusItem(i - 1);
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      focusItem(0);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      focusItem(items.length - 1);
-    }
-  }
-
-  function choose(l) {
-    document.cookie = `${LOCALE_COOKIE}=${l};path=/;max-age=31536000;samesite=lax`;
-    setPinned(true);
-    setOpen(false);
-  }
-
-  // Clearing the cookie hands the decision back to middleware.js, which reads
-  // Accept-Language. A full navigation (not a client route change) is required
-  // so the request actually passes through middleware again.
-  function chooseAuto() {
-    document.cookie = `${LOCALE_COOKIE}=;path=/;max-age=0;samesite=lax`;
-    setPinned(false);
-    setOpen(false);
-    window.location.assign(rest || '/');
+  if (variant === 'inline') {
+    return (
+      <div className="locale-inline">
+        <div className="locale-segmented" role="group" aria-label={label}>
+          {LOCALES.map((l) => (
+            <Link
+              key={l}
+              href={`/${l}${rest}`}
+              lang={l}
+              className={`locale-segmented-option${l === locale ? ' locale-segmented-option--active' : ''}`}
+              aria-current={l === locale ? 'true' : undefined}
+              onClick={() => remember(l)}
+            >
+              {LOCALE_NAMES[l]}
+            </Link>
+          ))}
+        </div>
+        <button
+          type="button"
+          className={`locale-auto${pinned === false ? ' locale-auto--active' : ''}`}
+          aria-pressed={pinned === false}
+          onClick={chooseAuto}
+        >
+          <Icon name="Monitor" size={13} aria-hidden="true" />
+          <span>{autoLabel}</span>
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="locale-switcher" ref={wrapRef}>
+    <div className="locale-switcher" ref={rootRef}>
       <button
-        ref={btnRef}
         type="button"
-        className="locale-trigger"
-        aria-label={label}
-        aria-haspopup="menu"
+        className="locale-switcher-trigger"
+        aria-haspopup="true"
         aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
+        aria-label={label}
         onClick={() => setOpen((v) => !v)}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowDown' && !open) {
-            e.preventDefault();
-            setOpen(true);
-            // wait for the menu to mount before moving focus into it
-            requestAnimationFrame(() => focusItem(0));
-          }
-        }}
       >
         <Icon name="Globe" size={15} aria-hidden="true" />
-        <span className="locale-trigger-code">{locale.toUpperCase()}</span>
-        <Icon
-          name="ChevronDown"
-          size={14}
-          aria-hidden="true"
-          className={`locale-chevron${open ? ' locale-chevron--open' : ''}`}
-        />
+        <span className="locale-switcher-current">{locale.toUpperCase()}</span>
+        <Icon name="ChevronDown" size={13} aria-hidden="true" className="locale-switcher-chevron" />
       </button>
 
       {open && (
-        <ul className="locale-menu" id={menuId} role="menu" onKeyDown={onMenuKeyDown}>
-          <li role="none">
-            <button
-              type="button"
-              role="menuitem"
-              className={`locale-item locale-item--auto${pinned === false ? ' locale-item--active' : ''}`}
-              aria-current={pinned === false ? 'true' : undefined}
-              onClick={chooseAuto}
-            >
-              <span className="locale-item-code" aria-hidden="true">
-                <Icon name="Monitor" size={13} />
-              </span>
-              <span>
-                {autoLabel}
-                <span className="locale-item-hint">{autoHint}</span>
-              </span>
-              {pinned === false && <Icon name="Check" size={14} aria-hidden="true" />}
-            </button>
-          </li>
+        <div className="locale-switcher-menu" role="group" aria-label={label}>
+          <button
+            type="button"
+            className={`locale-switcher-option locale-switcher-option--auto${
+              pinned === false ? ' locale-switcher-option--active' : ''
+            }`}
+            aria-current={pinned === false ? 'true' : undefined}
+            onClick={chooseAuto}
+          >
+            <span>
+              {autoLabel}
+              <span className="locale-switcher-hint">{autoHint}</span>
+            </span>
+            {pinned === false && <Icon name="Check" size={14} aria-hidden="true" />}
+          </button>
+
           {LOCALES.map((l) => (
-            <li key={l} role="none">
-              <Link
-                href={`/${l}${rest}`}
-                lang={l}
-                role="menuitem"
-                className={`locale-item${l === locale ? ' locale-item--active' : ''}`}
-                aria-current={l === locale ? 'true' : undefined}
-                onClick={() => choose(l)}
-              >
-                <span className="locale-item-code">{l.toUpperCase()}</span>
-                <span>{LOCALE_NAMES[l]}</span>
-                {pinned && l === locale && <Icon name="Check" size={14} aria-hidden="true" />}
-              </Link>
-            </li>
+            <Link
+              key={l}
+              href={`/${l}${rest}`}
+              lang={l}
+              className={`locale-switcher-option${l === locale ? ' locale-switcher-option--active' : ''}`}
+              aria-current={l === locale ? 'true' : undefined}
+              onClick={() => {
+                remember(l);
+                setOpen(false);
+              }}
+            >
+              <span>{LOCALE_NAMES[l]}</span>
+              {/* The tick marks the pinned choice; the highlight marks the
+                  language actually shown. Under Automatic they differ. */}
+              {pinned && l === locale && <Icon name="Check" size={14} aria-hidden="true" />}
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

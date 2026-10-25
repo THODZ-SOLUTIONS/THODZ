@@ -27,7 +27,7 @@ export function Footer({ locale, t }) {
           <Image
             src="/assets/logo-full.svg"
             alt="THODZ"
-            width={240}
+            width={193}
             height={64}
             className="logo-light"
             style={{ height: 38, width: 'auto', marginBottom: 18 }}
@@ -35,7 +35,7 @@ export function Footer({ locale, t }) {
           <Image
             src="/assets/logo-full-dark.svg"
             alt="THODZ"
-            width={240}
+            width={193}
             height={64}
             className="logo-dark"
             style={{ height: 38, width: 'auto', marginBottom: 18 }}
