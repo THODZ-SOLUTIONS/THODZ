@@ -296,3 +296,46 @@
     height: 40px;
   }
 }
+
+/* "Automatic" in the language menu: a button, not a link, because it clears
+   the cookie and re-enters middleware rather than navigating to a locale. */
+.locale-switcher-option--auto {
+  inline-size: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+.locale-switcher-hint {
+  display: block;
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+
+/* Mobile menu: the segmented control plus its own Automatic row. */
+.locale-inline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+.locale-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: 0;
+  padding: var(--space-1) 0;
+  font: inherit;
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.locale-auto--active {
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}

@@ -4,22 +4,39 @@
 /* SectionHead ----------------------------------------------------------- */
 
 .section-head {
-  max-width: 640px;
+  max-width: 680px;
 }
 
+/* Matches the homepage label: mono, tertiary, led by a short accent rule.
+   The amber --text-accent is reserved for links and figures, so the label
+   itself stays quiet. */
 .section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-family: var(--font-mono);
   font-size: var(--text-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--text-accent);
-  margin-bottom: var(--space-3);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-5);
+}
+.section-eyebrow::before {
+  content: '';
+  inline-size: 22px;
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-primary);
+  flex: none;
 }
 
 .section-head h2 {
-  font-size: var(--text-display-m);
+  font-size: var(--text-display-l);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-semibold);
   color: var(--fg-0);
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
 }
 
 .section-head p {
@@ -233,7 +250,7 @@
 }
 
 .faq-summary:hover {
-  color: var(--accent-primary);
+  color: var(--text-accent);
 }
 
 /* A plus that becomes a minus. Two bars, one rotated away on open. */

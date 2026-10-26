@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { CaseStudyCard } from '@/components/marketing/CaseStudyCard';
-import { SectionHead } from '@/components/marketing/SectionHead';
+import { ShippedGrid } from '@/components/home/ShippedCarousel';
+import { PageHead } from '@/components/marketing/PageHead';
 import { SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
@@ -12,11 +12,12 @@ export async function generateMetadata({ params }) {
     title: t.metaTitle,
     description: t.metaDescription,
     alternates: localeAlternates('/work'),
-    openGraph: {
+    ...pageOpenGraph({
+      locale,
+      path: '/work',
       title: `${t.metaTitle} · THODZ SOLUTIONS`,
       description: t.ogDescription,
-      url: `${SITE_URL}/${locale}/work`,
-    },
+    }),
   };
 }
 
@@ -31,20 +32,14 @@ export default async function WorkPage({ params }) {
 
   return (
     <div>
-      <div className="page-head bg-grid">
+      <PageHead eyebrow={t.headEyebrow} title={t.headTitle} sub={t.headSub} />
+      <section className="section section--flush-top">
         <div className="container">
-          <SectionHead eyebrow={t.headEyebrow} title={t.headTitle} sub={t.headSub} />
+          {/* Same card as the homepage grid, so a project looks identical
+              wherever you meet it. */}
+          <ShippedGrid locale={locale} studies={studies} />
         </div>
-      </div>
-      <div className="container" style={{ paddingBlock: 56 }}>
-        <div className="grid-3">
-          {studies.map((c) => (
-            <Link key={c.slug} href={`/${locale}/work/${c.slug}`} style={{ textDecoration: 'none' }}>
-              <CaseStudyCard {...c} />
-            </Link>
-          ))}
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

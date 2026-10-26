@@ -1,15 +1,17 @@
 import Link from 'next/link';
 import { Icon } from '@/components/core/Icon';
+import { JsonLd } from '@/components/core/JsonLd';
 import { Reveal } from '@/components/core/Reveal';
-import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { CaseStudyCard } from '@/components/marketing/CaseStudyCard';
-import { ProcessStep } from '@/components/marketing/ProcessStep';
-import { StatCard } from '@/components/marketing/StatCard';
-import { SectionHead } from '@/components/marketing/SectionHead';
+import { HeroArt } from '@/components/home/HeroArt';
+import { ServiceMarquee } from '@/components/home/ServiceMarquee';
+import { ProblemPicker } from '@/components/home/ProblemPicker';
+import { ShippedCarousel, ShippedGrid } from '@/components/home/ShippedCarousel';
+import { PricingPicker } from '@/components/home/PricingPicker';
+import { Faq } from '@/components/marketing/Faq';
 import { Testimonial } from '@/components/marketing/Testimonial';
-import { LogoStrip } from '@/components/marketing/LogoStrip';
-import { EngagementCard } from '@/components/marketing/EngagementCard';
-import { visible } from '@/lib/config';
+import { ContactForm } from '@/components/forms/ContactForm';
+import { CONTACT, SITE_URL, visible } from '@/lib/config';
+import { FEATURED_CASE_STUDIES } from '@/lib/content';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 export default async function HomePage({ params }) {
@@ -17,165 +19,301 @@ export default async function HomePage({ params }) {
   const t = getDictionary(locale);
   const content = getContent(locale);
 
+  // FEATURED_CASE_STUDIES is ordered and pre-filtered in lib/content.js, but
+  // it holds the English entries; re-resolve against the localized list so
+  // the carousel shows translated titles and before/after copy.
+  const bySlug = new Map(content.CASE_STUDIES.map((c) => [c.slug, c]));
+  const featured = FEATURED_CASE_STUDIES.map((c) => bySlug.get(c.slug) || c);
+
   return (
     <div>
-      <Hero locale={locale} t={t.home} content={content} />
-      <Services t={t.home} content={content} />
-      <Work locale={locale} t={t.home} content={content} />
+      {/* The site itself, so the three locale trees are understood as one
+          property rather than three unrelated sites. */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'THODZ SOLUTIONS',
+          url: `${SITE_URL}/${locale}`,
+          inLanguage: locale,
+          publisher: { '@type': 'Organization', name: 'THODZ SOLUTIONS', url: SITE_URL },
+        }}
+      />
+      {/* The FAQ is answered in full on this page, so the markup belongs
+          here too, not only on /pricing. */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: content.FAQ.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
+        }}
+      />
+
+      <Hero locale={locale} t={t.home} />
+      <ServiceMarquee services={content.SERVICES} />
+      <Problems locale={locale} t={t.home} content={content} />
+      <Shipped locale={locale} t={t.home} content={content} featured={featured} />
+      <OpenSource t={t.home} content={content} />
       <Proof t={t.home} content={content} />
-      <Process t={t.home} content={content} />
-      <Engagement locale={locale} t={t.home} tCard={t.engagementCard} content={content} />
-      <Values t={t.home} content={content} />
-      <ContactCta locale={locale} t={t.home} />
+      <Timeline t={t.home} content={content} />
+      <Pricing locale={locale} t={t.home} tCard={t.engagementCard} content={content} />
+      <FaqSection locale={locale} t={t.home} content={content} />
+      <Start locale={locale} t={t.home} tForm={t.form} />
     </div>
   );
 }
 
-function Hero({ locale, t, content }) {
+/** Section wrapper: index label, title, optional lede. */
+function SectionHead({ index, label, title, sub }) {
   return (
-    <section className="hero bg-grid">
-      <div className="container">
-        <div className="hero-frame">
-          <span className="hero-tick hero-tick--tl" aria-hidden="true" />
-          <span className="hero-tick hero-tick--br" aria-hidden="true" />
-          <div className="hero-eyebrow hero-rise">{t.heroEyebrow}</div>
-          <h1 className="hero-rise" style={{ '--rise-delay': '80ms' }}>
-            {t.heroTitle}
-          </h1>
-          <p className="hero-sub hero-rise" style={{ '--rise-delay': '160ms' }}>
-            {t.heroSub}
-          </p>
-          <div className="hero-actions hero-rise" style={{ '--rise-delay': '240ms' }}>
-            <Link href={`/${locale}/contact`} className="btn btn--primary btn--lg">
-              {t.heroCtaPrimary}
-            </Link>
-            <Link href={`/${locale}/work`} className="btn btn--secondary btn--lg">
-              {t.heroCtaSecondary}
-            </Link>
-          </div>
+    <div className="home-head">
+      <div>
+        <div className="section-index">
+          <b>{index}</b> · {label}
         </div>
-        <div className="hero-stats hero-rise" style={{ '--rise-delay': '360ms' }}>
-          <StatCard value={String(content.SERVICES.length)} label={t.statDisciplines} />
-          <StatCard value={String(content.CASE_STUDIES.length)} label={t.statProjects} />
-          <StatCard value={t.statLanguagesValue} label={t.statLanguages} />
-          <StatCard value={t.statReplyValue} label={t.statReply} />
+        <h2 className="home-h2">{title}</h2>
+      </div>
+      {sub && <p className="home-lede">{sub}</p>}
+    </div>
+  );
+}
+
+function Hero({ locale, t }) {
+  return (
+    <section className="hero-v2">
+      <div className="container">
+        <div className="hero-v2-grid">
+          <div>
+            <div className="hero-v2-eyebrow">{t.heroEyebrow}</div>
+            <h1 className="hero-v2-title">{t.heroTitle}</h1>
+            <p className="hero-v2-sub">{t.heroSub}</p>
+            <div className="hero-v2-actions">
+              {/* No calendar is configured (CONTACT.bookingUrl is null), so
+                  the primary CTA goes to the contact form rather than a
+                  dead booking link. */}
+              <Link
+                href={CONTACT.bookingUrl || `/${locale}/contact`}
+                className="btn btn--primary btn--lg"
+              >
+                {t.heroCtaPrimary}
+                <Icon name="ArrowRight" size={17} aria-hidden="true" />
+              </Link>
+              <Link href={`/${locale}/work`} className="btn btn--secondary btn--lg">
+                {t.heroCtaSecondary}
+              </Link>
+            </div>
+            <div className="hero-v2-assurances">
+              {[t.heroAssuranceReply, t.heroAssurancePrice].map((a) => (
+                <div className="hero-v2-assurance" key={a}>
+                  <Icon name="Check" size={16} aria-hidden="true" />
+                  <span>{a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-v2-art">
+            <HeroArt />
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function Services({ t, content }) {
+function Problems({ locale, t, content }) {
   return (
-    <section id="services" className="section">
+    <section id="problems" className="section">
       <div className="container">
         <Reveal>
-          <SectionHead eyebrow={t.servicesEyebrow} title={t.servicesTitle} sub={t.servicesSub} />
+          <SectionHead index="01" label={t.problemLabel} title={t.problemTitle} sub={t.problemSub} />
         </Reveal>
         <Reveal delay={100}>
-          <div className="grid-3" style={{ marginTop: 48 }}>
-            {content.SERVICES.map((s, i) => (
-              <ServiceCard
-                key={s.title}
-                index={String(i + 1).padStart(2, '0')}
-                icon={<Icon name={s.icon} size={20} />}
-                title={s.title}
-                description={s.description}
-              />
-            ))}
-          </div>
+          <ProblemPicker
+            locale={locale}
+            problems={content.PROBLEMS}
+            disciplineLabels={content.DISCIPLINE_LABELS}
+            disciplineKeys={content.DISCIPLINE_KEYS}
+            t={t}
+          />
         </Reveal>
       </div>
     </section>
   );
 }
 
-function Work({ locale, t, content }) {
-  // Lead with the projects we can actually show. Sort is stable, so within
-  // each group the curated order in lib/content.js is preserved.
-  const featured = [...content.CASE_STUDIES]
+function Shipped({ locale, t, content, featured }) {
+  // The carousel leads with the projects that have screenshots; the grid
+  // below shows the next four of everything else.
+  const featuredSlugs = new Set(featured.map((c) => c.slug));
+  // Lead the grid with projects that have a screenshot; the sort is stable, so
+  // within each group the curated order in lib/content.js is preserved.
+  const rest = content.CASE_STUDIES.filter((c) => !featuredSlugs.has(c.slug))
     .sort((a, b) => (b.images?.length ? 1 : 0) - (a.images?.length ? 1 : 0))
-    .slice(0, 6);
+    .slice(0, 4);
+
   return (
     <section id="work" className="section section--sunken">
       <div className="container">
         <Reveal>
-          <SectionHead eyebrow={t.workEyebrow} title={t.workTitle} sub={t.workSub} />
+          <ShippedCarousel
+            locale={locale}
+            studies={featured}
+            t={t}
+            heading={
+              <div>
+                <div className="section-index">
+                  <b>02</b> · {t.shippedLabel}
+                </div>
+                <h2 className="home-h2">{t.shippedTitle}</h2>
+              </div>
+            }
+          />
+        </Reveal>
+        {rest.length > 0 && (
+          <Reveal delay={150}>
+            <ShippedGrid locale={locale} studies={rest} />
+          </Reveal>
+        )}
+        <div className="shipped-foot">
+          <Link href={`/${locale}/work`} className="btn btn--primary btn--md">
+            {t.viewAllProjects}
+            <Icon name="ArrowRight" size={16} aria-hidden="true" />
+          </Link>
+          <span className="shipped-foot-tags">
+            {content.SERVICES.slice(0, 6).map((s) => s.title).join(' · ')}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Packages the team maintains on pub.dev. Every claim here is checkable by
+// following the link, which is the point of the section.
+function OpenSource({ t, content }) {
+  const pkgs = content.OPEN_SOURCE;
+  if (!pkgs?.length) return null;
+
+  return (
+    <section id="open-source" className="section">
+      <div className="container">
+        <Reveal>
+          <div className="home-head">
+            <div>
+              <div className="section-index">{t.openSourceLabel}</div>
+              <h2 className="home-h2">{t.openSourceTitle}</h2>
+            </div>
+            <p className="home-lede">{t.openSourceSub}</p>
+          </div>
         </Reveal>
         <Reveal delay={100}>
-          <div className="grid-3" style={{ marginTop: 40 }}>
-            {featured.map((c) => (
-              <Link key={c.slug} href={`/${locale}/work/${c.slug}`} style={{ textDecoration: 'none' }}>
-                <CaseStudyCard {...c} />
-              </Link>
+          <div className="oss-grid">
+            {pkgs.map((p) => (
+              <a
+                key={p.name}
+                className="oss-card"
+                href={p.pubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="oss-meta">
+                  <span>{p.language}</span>
+                  <span className="oss-version">v{p.version}</span>
+                </div>
+                <h3 className="oss-name">{p.name}</h3>
+                <p className="oss-tagline">{p.tagline}</p>
+                <p className="oss-desc">{p.description}</p>
+                <span className="oss-link">
+                  {t.openSourceCta}
+                  <Icon name="ArrowUpRight" size={15} aria-hidden="true" />
+                </span>
+              </a>
             ))}
           </div>
         </Reveal>
-        {content.CASE_STUDIES.length > featured.length && (
-          <div style={{ marginTop: 40, textAlign: 'center' }}>
-            <Link href={`/${locale}/work`} className="btn btn--secondary btn--md">
-              {t.workCta}
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   );
 }
 
-// Client logos and quotes. Both lists are empty in production until real,
-// approved entries exist, and the whole section disappears with them rather
-// than shipping an empty shell.
+// Real, approved quotes only. Both lists are placeholder-gated in
+// lib/config.js, so in production this section renders nothing at all
+// rather than an empty shell with a quotation mark in it.
 function Proof({ t, content }) {
   const quotes = visible(content.TESTIMONIALS);
-  const clients = visible(content.CLIENTS);
-  if (!quotes.length && !clients.length) return null;
-
+  if (!quotes.length) return null;
   return (
     <section className="section">
       <div className="container">
-        <Reveal>
-          <SectionHead eyebrow={t.proofEyebrow} title={t.proofTitle} sub={t.proofSub} />
-        </Reveal>
-        {quotes.length > 0 && (
-          <Reveal delay={100}>
-            <div className="grid-2" style={{ marginTop: 44 }}>
-              {quotes.map((q) => (
-                <Testimonial key={q.name + q.quote.slice(0, 12)} {...q} />
-              ))}
-            </div>
-          </Reveal>
-        )}
-        {clients.length > 0 && (
-          <div style={{ marginTop: 56, paddingTop: 40, borderTop: '1px solid var(--border-subtle)' }}>
-            <div className="eyebrow" style={{ textAlign: 'center', color: 'var(--text-tertiary)', marginBottom: 28 }}>
-              {t.proofClients}
-            </div>
-            <LogoStrip clients={clients} />
-          </div>
-        )}
+        <div className="home-eyebrow" style={{ marginBottom: 'var(--space-6)' }}>
+          {t.proofEyebrow}
+        </div>
+        <div className="grid-2">
+          {quotes.map((q) => (
+            <Testimonial key={q.name + q.quote.slice(0, 12)} {...q} />
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function Engagement({ locale, t, tCard, content }) {
+function Timeline({ t, content }) {
+  return (
+    <section id="process" className="section">
+      <div className="container">
+        <Reveal>
+          <SectionHead
+            index="03"
+            label={t.timelineLabel}
+            title={t.timelineTitle}
+            sub={t.timelineSub}
+          />
+        </Reveal>
+        <Reveal delay={100}>
+          <div className="timeline-grid">
+            {content.TIMELINE.map((step) => (
+              <article className="timeline-card" key={step.title}>
+                <div className="timeline-when">{step.when}</div>
+                <h3 className="timeline-title">{step.title}</h3>
+                <p className="timeline-text">{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Pricing({ locale, t, tCard, content }) {
   return (
     <section id="pricing" className="section section--sunken">
       <div className="container">
         <Reveal>
-          <SectionHead eyebrow={t.engagementEyebrow} title={t.engagementTitle} sub={t.engagementSub} />
+          <SectionHead
+            index="04"
+            label={t.pricingLabel}
+            title={t.pricingTitle}
+            sub={t.pricingSub}
+          />
         </Reveal>
         <Reveal delay={100}>
-          <div className="grid-3" style={{ marginTop: 44, alignItems: 'stretch' }}>
-            {content.ENGAGEMENTS.slice(0, 3).map((e) => (
-              <EngagementCard key={e.name} {...e} t={tCard} />
-            ))}
-          </div>
+          <PricingPicker
+            locale={locale}
+            engagements={content.ENGAGEMENTS}
+            t={t}
+            tCard={tCard}
+          />
         </Reveal>
-        <div style={{ marginTop: 36, textAlign: 'center' }}>
+        <div style={{ marginTop: 'var(--space-8)', textAlign: 'center' }}>
           <Link href={`/${locale}/pricing`} className="btn btn--secondary btn--md">
-            {t.engagementCta}
+            {t.pricingCta}
           </Link>
         </div>
       </div>
@@ -183,64 +321,91 @@ function Engagement({ locale, t, tCard, content }) {
   );
 }
 
-function Process({ t, content }) {
+function FaqSection({ locale, t, content }) {
   return (
-    <section id="process" className="section">
-      <div className="container container--lg">
-        <Reveal>
-          <SectionHead eyebrow={t.processEyebrow} title={t.processTitle} sub={t.processSub} />
-        </Reveal>
-        <Reveal delay={100}>
-          <div style={{ marginTop: 48 }}>
-            {content.PROCESS.map((p, i) => (
-              <ProcessStep
-                key={p.title}
-                index={String(i + 1).padStart(2, '0')}
-                title={p.title}
-                description={p.description}
-                isLast={i === content.PROCESS.length - 1}
-              />
-            ))}
+    <section id="faq" className="section">
+      <div className="container">
+        <div className="faq-layout">
+          <div className="faq-aside">
+            <div className="section-index">
+              <b>05</b> · {t.faqLabel}
+            </div>
+            <h2 className="home-h2">{t.faqTitle}</h2>
+            <p className="home-lede" style={{ marginTop: 'var(--space-5)' }}>
+              {t.faqSub}{' '}
+              <a href={`https://wa.me/${CONTACT.whatsapp}`} rel="noopener noreferrer">
+                WhatsApp
+              </a>
+              .
+            </p>
           </div>
-        </Reveal>
+          <Faq items={content.FAQ} />
+        </div>
       </div>
     </section>
   );
 }
 
-function Values({ t, content }) {
+function Start({ locale, t, tForm }) {
+  const channels = [
+    CONTACT.bookingUrl && {
+      icon: 'CalendarDays',
+      title: CONTACT.bookingLabel,
+      sub: t.channelBookSub,
+      href: CONTACT.bookingUrl,
+    },
+    {
+      icon: 'MessageCircle',
+      title: 'WhatsApp',
+      sub: CONTACT.phoneDisplay,
+      href: `https://wa.me/${CONTACT.whatsapp}`,
+    },
+    {
+      icon: 'Mail',
+      title: t.channelEmail,
+      sub: CONTACT.email,
+      href: `mailto:${CONTACT.email}`,
+    },
+  ].filter(Boolean);
+
   return (
-    <section id="values" className="section" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+    <section id="contact" className="section section--sunken">
       <div className="container">
         <Reveal>
-          <SectionHead eyebrow={t.valuesEyebrow} title={t.valuesTitle} sub={t.valuesSub} />
-        </Reveal>
-        <Reveal delay={100}>
-          <div className="grid-3" style={{ marginTop: 48 }}>
-            {content.VALUES.map((v) => (
-              <div key={v.title} className="card service-card">
-                <h3>{v.title}</h3>
-                <p>{v.description}</p>
-              </div>
-            ))}
+          <div className="section-index">
+            <b>06</b> · {t.startLabel}
           </div>
+          <h2 className="home-h2" style={{ maxWidth: '22ch' }}>
+            {t.startTitle}
+          </h2>
         </Reveal>
-      </div>
-    </section>
-  );
-}
 
-function ContactCta({ locale, t }) {
-  return (
-    <section className="cta-section cta-section--raised">
-      <div className="container container--sm">
-        <div className="eyebrow">{t.ctaEyebrow}</div>
-        <h2>{t.ctaTitle}</h2>
-        <p>{t.ctaBody}</p>
-        <div className="cta-actions">
-          <Link href={`/${locale}/contact`} className="btn btn--primary btn--lg">
-            {t.ctaButton}
-          </Link>
+        <div className="start-layout">
+          <div className="start-panel">
+            <ContactForm locale={locale} t={tForm} />
+          </div>
+
+          <aside>
+            <div className="start-aside-label">{t.preferToTalk}</div>
+            {channels.map((c) => (
+              <a
+                key={c.title}
+                href={c.href}
+                className="start-channel"
+                rel="noopener noreferrer"
+              >
+                <span className="start-channel-icon">
+                  <Icon name={c.icon} size={18} aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="start-channel-title">{c.title}</span>
+                  <br />
+                  <span className="start-channel-sub">{c.sub}</span>
+                </span>
+              </a>
+            ))}
+            <p className="start-note">{t.startNote}</p>
+          </aside>
         </div>
       </div>
     </section>

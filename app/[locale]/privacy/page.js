@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { ProseSections } from '@/components/core/ProseSections';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n';
@@ -10,11 +11,12 @@ export async function generateMetadata({ params }) {
     title: t.metaTitle,
     description: t.metaDescription,
     alternates: localeAlternates('/privacy'),
-    openGraph: {
+    ...pageOpenGraph({
+      locale,
+      path: '/privacy',
       title: `${t.metaTitle} · THODZ SOLUTIONS`,
       description: t.ogDescription,
-      url: `${SITE_URL}/${locale}/privacy`,
-    },
+    }),
   };
 }
 

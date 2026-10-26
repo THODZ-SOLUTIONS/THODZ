@@ -49,7 +49,10 @@
   --text-secondary: var(--fg-2);
   --text-tertiary: var(--fg-3);
   --text-inverse: #ffffff;
-  --text-accent: var(--accent-500);
+  /* Accent *text* is amber, accent *fills* stay cobalt: the two never compete
+     for the same role. Light mode uses amber-700 rather than amber-500 —
+     #ffb545 on a near-white page is about 1.9:1, nowhere near readable. */
+  --text-accent: var(--amber-700);
   --accent-primary: var(--accent-500);
   --accent-primary-hover: var(--accent-600);
   --accent-primary-press: var(--accent-700);
@@ -94,7 +97,7 @@
   --fg-4: #525c65;
 
   --text-inverse: #07090c;
-  --text-accent: var(--accent-400);
+  --text-accent: var(--amber-500);
   --accent-primary: var(--accent-400);
   --accent-primary-hover: var(--accent-300);
   --accent-primary-press: var(--accent-500);
@@ -137,7 +140,7 @@
     --fg-4: #525c65;
 
     --text-inverse: #07090c;
-    --text-accent: var(--accent-400);
+    --text-accent: var(--amber-500);
     --accent-primary: var(--accent-400);
     --accent-primary-hover: var(--accent-300);
     --accent-primary-press: var(--accent-500);

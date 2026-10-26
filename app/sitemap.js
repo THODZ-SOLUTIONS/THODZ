@@ -27,6 +27,9 @@ export default function sitemap() {
 
   return pages.flatMap((p) => {
     const languages = Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}${p.path}`]));
+    // Matches the x-default the page metadata already declares; a sitemap
+    // whose alternates disagree with the page's is a conflicting signal.
+    languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${p.path}`;
     return LOCALES.map((locale) => ({
       url: `${SITE_URL}/${locale}${p.path}`,
       lastModified: now,

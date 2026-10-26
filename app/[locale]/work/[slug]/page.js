@@ -6,6 +6,7 @@ import { Screenshot } from '@/components/marketing/Screenshot';
 import { Testimonial } from '@/components/marketing/Testimonial';
 import { CASE_STUDIES } from '@/lib/content';
 import { SITE_URL } from '@/lib/config';
+import { pageOpenGraph } from '@/lib/seo';
 import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
@@ -22,13 +23,16 @@ export async function generateMetadata({ params }) {
     title: study.title,
     description: study.summary,
     alternates: localeAlternates(`/work/${study.slug}`),
-    openGraph: {
+    // Falls back to the generated card when a case study has no screenshot
+    // yet, rather than sharing as a bare link.
+    ...pageOpenGraph({
+      locale,
+      path: `/work/${study.slug}`,
       title: study.title,
       description: study.summary,
-      url: `${SITE_URL}/${locale}/work/${study.slug}`,
+      image,
       type: 'article',
-      images: image ? [{ url: image }] : undefined,
-    },
+    }),
   };
 }
 
@@ -55,6 +59,21 @@ export default async function CaseStudyPage({ params }) {
           about: study.category,
           image: study.images?.map((i) => `${SITE_URL}${i.src}`),
           creator: { '@type': 'Organization', name: 'THODZ SOLUTIONS', url: SITE_URL },
+        }}
+      />
+
+      {/* Breadcrumbs are the one structured-data type here that reliably
+          changes what a result looks like: Google renders the trail in place
+          of the raw URL. Positions follow the real navigation path. */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: t.breadcrumbHome, item: `${SITE_URL}/${locale}` },
+            { '@type': 'ListItem', position: 2, name: t.breadcrumbWork, item: `${SITE_URL}/${locale}/work` },
+            { '@type': 'ListItem', position: 3, name: study.title },
+          ],
         }}
       />
 

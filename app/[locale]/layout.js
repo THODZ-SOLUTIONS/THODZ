@@ -8,6 +8,10 @@ import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import { LOCALES, OG_LOCALES, localeDir, localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
+// The generated share card (app/opengraph-image.js), referenced by path so
+// metadataBase resolves it to an absolute URL.
+const OG_IMAGE = '/opengraph-image';
+
 // Fonts are vendored under public/fonts and declared in
 // styles/tokens/font-faces.css — no next/font, so builds never depend on
 // reaching Google Fonts. Preload only the regular-weight body face the
@@ -60,12 +64,21 @@ export async function generateMetadata({ params }) {
       url: `${SITE_URL}/${locale}`,
       siteName: 'THODZ SOLUTIONS',
       locale: OG_LOCALES[locale],
+      // Every other locale is an alternate of this card, which is what tells
+      // a crawler the three URLs are translations rather than duplicates.
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALES[l]),
       type: 'website',
+      // Declared explicitly: app/opengraph-image.js sits above the [locale]
+      // segment, and naming openGraph here means the file convention no
+      // longer injects itself. Without this every share outside a case study
+      // posts as a bare text link.
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: t.meta.title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: t.meta.title,
       description: t.meta.ogDescription,
+      images: [OG_IMAGE],
     },
   };
 }

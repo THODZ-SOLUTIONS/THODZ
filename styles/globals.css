@@ -17,6 +17,7 @@
 @import './components/hero.css';
 @import './components/pages.css';
 @import './components/prose.css';
+@import './components/home.css';
 @import './components/motion.css';
 
 html {

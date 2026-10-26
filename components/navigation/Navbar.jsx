@@ -43,11 +43,13 @@ export function Navbar({ locale, t }) {
   const pathname = usePathname();
 
   const links = [
-    { label: t.services, href: `/${locale}#services` },
+    // Anchors point at the homepage sections; #problems, #process and #faq
+    // only exist on the home route, which is where these links go.
+    { label: t.problems, href: `/${locale}#problems` },
     { label: t.work, href: `/${locale}/work` },
-    { label: t.process, href: `/${locale}#process` },
+    { label: t.howItRuns, href: `/${locale}#process` },
     { label: t.pricing, href: `/${locale}/pricing` },
-    { label: t.about, href: `/${locale}/about` },
+    { label: t.faq, href: `/${locale}#faq` },
   ];
 
   // Any navigation closes the menu, including same-page anchor jumps.
@@ -85,10 +87,15 @@ export function Navbar({ locale, t }) {
               {l.label}
             </Link>
           ))}
-          <LocaleSwitcher locale={locale} label={t.languageLabel} />
-          <ThemeToggle />
+          <LocaleSwitcher
+            locale={locale}
+            label={t.languageLabel}
+            autoLabel={t.languageAuto}
+            autoHint={t.languageAutoHint}
+          />
+          <ThemeToggle labels={t.theme} />
           <Link href={`/${locale}/contact`} className="btn btn--primary btn--sm">
-            {t.startProject}
+            {t.bookCall}
           </Link>
         </div>
 
@@ -112,11 +119,17 @@ export function Navbar({ locale, t }) {
             </Link>
           ))}
           <div className="nav-mobile-controls">
-            <LocaleSwitcher locale={locale} label={t.languageLabel} variant="inline" />
-            <ThemeToggle />
+            <LocaleSwitcher
+              locale={locale}
+              label={t.languageLabel}
+              autoLabel={t.languageAuto}
+              autoHint={t.languageAutoHint}
+              variant="inline"
+            />
+            <ThemeToggle labels={t.theme} />
           </div>
           <Link href={`/${locale}/contact`} onClick={() => setOpen(false)} className="btn btn--primary btn--md">
-            {t.startProject}
+            {t.bookCall}
           </Link>
         </div>
       )}

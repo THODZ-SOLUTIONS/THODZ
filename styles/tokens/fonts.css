@@ -18,6 +18,8 @@ html[lang='ar'] {
 
   /* Arabic script connects its letters; tracking pulls them apart and breaks
      the joins. Zero every tracking token rather than chasing each usage. */
+  --tracking-display: 0em;
+  --tracking-tighter: 0em;
   --tracking-tight: 0em;
   --tracking-normal: 0em;
   --tracking-wide: 0em;
