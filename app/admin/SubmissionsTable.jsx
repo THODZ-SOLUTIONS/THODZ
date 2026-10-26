@@ -29,18 +29,28 @@ export function SubmissionsTable({ initialRows, loadError }) {
 
   const unread = rows.filter((r) => r.status === 'new').length;
 
+  // PostgREST does not error when row-level security filters a row out of a
+  // write: the statement simply affects nothing and returns 204. Asking for
+  // the affected rows back with .select() is the only way to tell "done" from
+  // "silently did nothing" — without it the table updates optimistically and
+  // the change reappears on the next load.
+  const RLS_HINT =
+    'the row was not changed. The table’s row-level security policy did not match this session — check the policies on contact_submissions.';
+
   async function setStatus(row, status) {
-    const { error: err } = await supabase
-      .from('contact_submissions').update({ status }).eq('id', row.id);
+    const { data, error: err } = await supabase
+      .from('contact_submissions').update({ status }).eq('id', row.id).select('id');
     if (err) return setError(err.message);
+    if (!data?.length) return setError(`Could not mark as ${status}: ${RLS_HINT}`);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, status } : r)));
   }
 
   async function remove(row) {
     if (!window.confirm(`Delete submission from ${row.name}? This cannot be undone.`)) return;
-    const { error: err } = await supabase
-      .from('contact_submissions').delete().eq('id', row.id);
+    const { data, error: err } = await supabase
+      .from('contact_submissions').delete().eq('id', row.id).select('id');
     if (err) return setError(err.message);
+    if (!data?.length) return setError(`Could not delete: ${RLS_HINT}`);
     setRows((rs) => rs.filter((r) => r.id !== row.id));
   }
 
