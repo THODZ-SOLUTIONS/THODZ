@@ -221,21 +221,25 @@ function OpenSource({ t, content }) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <div className="oss-meta">
-                  <span>{p.language}</span>
-                  <span className="oss-version">v{p.version}</span>
-                </div>
-                <h3 className="oss-name">{p.name}</h3>
-                <p className="oss-tagline">{p.tagline}</p>
+                <h3 className="oss-tagline">{p.tagline}</h3>
                 <p className="oss-desc">{p.description}</p>
-                <span className="oss-link">
-                  {t.openSourceCta}
-                  <Icon name="ArrowUpRight" size={15} aria-hidden="true" />
-                </span>
+                <div className="oss-foot">
+                  <span className="oss-name">{p.name}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="oss-link">
+                    {t.openSourceCta}
+                    <Icon name="ArrowUpRight" size={15} aria-hidden="true" />
+                  </span>
+                </div>
               </a>
             ))}
           </div>
         </Reveal>
+        {t.openSourceClosing && (
+          <Reveal delay={150}>
+            <p className="oss-closing">{t.openSourceClosing}</p>
+          </Reveal>
+        )}
       </div>
     </section>
   );

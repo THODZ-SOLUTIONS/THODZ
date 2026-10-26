@@ -27,6 +27,7 @@ export function HeroArt() {
 
       {/* connectors, drawn first so the cards sit on top */}
       <g
+        className="ha-wires"
         stroke="var(--border-default)"
         strokeWidth="1"
         strokeDasharray="3 5"
@@ -39,7 +40,7 @@ export function HeroArt() {
       </g>
 
       {/* top-left: a list / table card */}
-      <g>
+      <g className="ha-float ha-float-1">
         <rect x="56" y="92" width="150" height="104" rx="14"
           fill="var(--surface-overlay)" stroke="var(--border-default)" />
         <circle cx="74" cy="110" r="3" fill="var(--text-tertiary)" />
@@ -52,7 +53,7 @@ export function HeroArt() {
       </g>
 
       {/* top-right: a small analytics card */}
-      <g>
+      <g className="ha-float ha-float-2">
         <rect x="330" y="80" width="134" height="116" rx="14"
           fill="var(--surface-overlay)" stroke="var(--border-default)" />
         <rect x="348" y="98" width="62" height="8" rx="4" fill="var(--fg-0)" />
@@ -63,7 +64,7 @@ export function HeroArt() {
       </g>
 
       {/* centre: the THODZ mark on a raised tile */}
-      <g>
+      <g className="ha-float ha-float-3">
         <rect x="196" y="196" width="128" height="128" rx="30"
           fill="url(#ha-mark)" stroke="var(--border-strong)" />
         <rect x="228" y="232" width="64" height="13" rx="6.5" fill="var(--fg-0)" />
@@ -72,7 +73,7 @@ export function HeroArt() {
       </g>
 
       {/* bottom-left: a phone */}
-      <g>
+      <g className="ha-float ha-float-4">
         <rect x="78" y="318" width="92" height="140" rx="18"
           fill="var(--surface-overlay)" stroke="var(--border-default)" />
         <circle cx="124" cy="358" r="15" fill="var(--accent-primary)" />
@@ -82,7 +83,7 @@ export function HeroArt() {
       </g>
 
       {/* bottom-right: a security shield */}
-      <g>
+      <g className="ha-float ha-float-5">
         <rect x="336" y="318" width="118" height="118" rx="16"
           fill="var(--surface-overlay)" stroke="var(--border-default)" />
         <path
@@ -94,12 +95,13 @@ export function HeroArt() {
           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
 
-      {/* the "in production" pill */}
-      <g>
-        <rect x="214" y="398" width="138" height="34" rx="17" fill="var(--accent-primary)" />
-        <circle cx="236" cy="415" r="5" fill="var(--text-inverse)" />
+      {/* the "in production" status pill, pinned to the top-left corner */}
+      <g className="ha-float ha-float-6">
+        <rect x="24" y="24" width="138" height="34" rx="17" fill="var(--accent-primary)" />
+        <circle className="ha-pulse" cx="46" cy="41" r="5" fill="var(--text-inverse)" />
+        <circle cx="46" cy="41" r="5" fill="var(--text-inverse)" />
         <text
-          x="250" y="420"
+          x="60" y="46"
           fontFamily="var(--font-mono)" fontSize="12"
           fill="var(--text-inverse)"
         >

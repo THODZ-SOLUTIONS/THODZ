@@ -176,6 +176,63 @@
   display: block;
 }
 
+/* Ambient motion: each card bobs on its own period and phase so the collage
+   never moves in lockstep, the wires flow toward the centre tile, and the
+   status dot pulses. All of it stops under prefers-reduced-motion. */
+.ha-float {
+  animation: ha-float 6s var(--ease-standard, ease-in-out) infinite alternate;
+}
+.ha-float-1 { animation-duration: 6.5s; }
+.ha-float-2 { animation-duration: 5.5s; animation-delay: -2s; }
+.ha-float-3 { animation-duration: 7s; animation-delay: -1s; --ha-lift: -6px; }
+.ha-float-4 { animation-duration: 6s; animation-delay: -3.5s; }
+.ha-float-5 { animation-duration: 7.5s; animation-delay: -4.5s; }
+.ha-float-6 { animation-duration: 5s; animation-delay: -1.5s; --ha-lift: -5px; }
+@keyframes ha-float {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 var(--ha-lift, -10px);
+  }
+}
+
+.ha-wires path {
+  animation: ha-flow 1.6s linear infinite;
+}
+@keyframes ha-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+.ha-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ha-pulse 2s ease-out infinite;
+}
+@keyframes ha-pulse {
+  from {
+    opacity: 0.7;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 2.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ha-float,
+  .ha-wires path,
+  .ha-pulse {
+    animation: none;
+  }
+  .ha-pulse {
+    opacity: 0;
+  }
+}
+
 /* --------------------------------------------------------------- marquee -- */
 
 .marquee {
@@ -1060,34 +1117,10 @@
   transform: translateY(-2px);
 }
 
-.oss-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  color: var(--text-tertiary);
-  margin-bottom: var(--space-4);
-}
-/* The version pill is the checkable bit: it matches what pub.dev serves. */
-.oss-version {
-  color: var(--text-accent);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  padding: 2px var(--space-2);
-}
-.oss-name {
-  font-family: var(--font-mono);
-  font-size: var(--text-body-m);
-  font-weight: var(--weight-medium);
-  color: var(--fg-0);
-  margin: 0 0 var(--space-2);
-  word-break: break-word;
-}
 .oss-tagline {
-  font-size: var(--text-body-s);
-  font-weight: var(--weight-medium);
-  color: var(--text-primary);
+  font-size: var(--text-heading-s);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-0);
   margin: 0 0 var(--space-3);
 }
 .oss-desc {
@@ -1097,14 +1130,33 @@
   margin: 0 0 var(--space-5);
   flex: 1;
 }
+/* Package name + link: the checkable bit, kept quiet below the story. */
+.oss-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body-s);
+  color: var(--text-tertiary);
+}
+.oss-name {
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
 .oss-link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--text-body-s);
   font-weight: var(--weight-medium);
   color: var(--text-accent);
 }
 [dir='rtl'] .oss-link svg {
   transform: scaleX(-1);
+}
+.oss-closing {
+  margin: var(--space-8) 0 0;
+  text-align: center;
+  font-size: var(--text-body-m);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
 }
