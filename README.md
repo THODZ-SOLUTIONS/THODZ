@@ -54,15 +54,61 @@ Open http://localhost:3000.
 ## Contact form email delivery
 
 The contact form POSTs to `/api/contact`. Without any environment variables
-set, submissions are logged server-side (visible in `vercel logs` in
-production) but **no email is actually sent**. To enable real email delivery:
+set, submissions are logged server-side (in the Worker's logs on Cloudflare)
+but **no email is actually sent**. To enable real email delivery:
 
 1. Create a free [Resend](https://resend.com) account and API key.
-2. Set these environment variables (in Vercel: Project → Settings →
-   Environment Variables; locally: copy `.env.example` to `.env.local`):
+2. Set these environment variables (on Cloudflare: Settings → Variables and
+   Secrets; locally: copy `.env.example` to `.env.local`):
    - `RESEND_API_KEY`
    - `CONTACT_TO_EMAIL`: where inquiries should land (defaults to `support@thodz.com`)
    - `CONTACT_FROM_EMAIL`: must be a verified sender/domain in Resend once you're past their sandbox sender
+
+## Contact submissions and the admin dashboard
+
+Submissions are stored in Supabase and triaged at `/admin`. Both the table
+and the dashboard already exist in this repo; they are inert until the
+Supabase environment variables are set.
+
+Until then, `/admin` **returns 404 on purpose** — `middleware.js` refuses to
+expose a dashboard that cannot reach its database, rather than rendering a
+broken one. A 404 there means "not configured", not "missing".
+
+To turn it on:
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL
+   editor (Dashboard → SQL Editor → New query). It creates
+   `contact_submissions` and its row-level security policies.
+3. Set three environment variables (locally: copy `.env.example` to
+   `.env.local`; on Cloudflare: Settings → Variables and Secrets):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SECRET_KEY` (server only — never prefix this one with
+     `NEXT_PUBLIC_`)
+4. Create the person who will sign in: Supabase Dashboard →
+   Authentication → Users → Add user. There is no public sign-up; the
+   dashboard only admits users you create by hand.
+
+Then sign in at `/admin/login`.
+
+### How it fits together
+
+| Piece | Where |
+| :--- | :--- |
+| Insert on submit | `app/api/contact/route.js` |
+| Table and RLS policies | `supabase/schema.sql` |
+| Dashboard (list, triage, delete) | `app/admin/` |
+| Route protection | `middleware.js` |
+
+A row in `contact_submissions` is the source of truth. The Resend email
+below is best-effort on top of it: if email fails the submission is still
+recorded, and if Supabase is unset the submission is still logged
+server-side. Inserts use the secret key and bypass RLS; the schema grants
+no insert policy, so nothing can write to the table from the browser.
+
+Rows carry a `status` of `new` or `read`. Opening a row in the dashboard
+marks it read.
 
 ## Content
 
