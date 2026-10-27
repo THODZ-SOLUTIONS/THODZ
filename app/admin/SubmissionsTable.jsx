@@ -24,23 +24,42 @@ export function SubmissionsTable({ initialRows, loadError }) {
   const router = useRouter();
   const [rows, setRows] = React.useState(initialRows);
   const [openId, setOpenId] = React.useState(null);
+  const [confirmId, setConfirmId] = React.useState(null);
   const [error, setError] = React.useState(loadError);
   const supabase = React.useMemo(() => createClient(), []);
 
   const unread = rows.filter((r) => r.status === 'new').length;
 
+  // PostgREST does not error when row-level security filters a row out of a
+  // write: the statement simply affects nothing and returns 204. Asking for
+  // the affected rows back with .select() is the only way to tell "done" from
+  // "silently did nothing" — without it the table updates optimistically and
+  // the change reappears on the next load.
+  const RLS_HINT =
+    'the row was not changed. The table’s row-level security policy did not match this session — check the policies on contact_submissions.';
+
   async function setStatus(row, status) {
-    const { error: err } = await supabase
-      .from('contact_submissions').update({ status }).eq('id', row.id);
+    const { data, error: err } = await supabase
+      .from('contact_submissions').update({ status }).eq('id', row.id).select('id');
     if (err) return setError(err.message);
+    if (!data?.length) return setError(`Could not mark as ${status}: ${RLS_HINT}`);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, status } : r)));
   }
 
+  // Two-step inline confirm rather than window.confirm(): browsers suppress
+  // that dialog once the visitor ticks "prevent this page from creating
+  // additional dialogs", and a suppressed confirm returns false, so Delete
+  // silently did nothing with no way to tell.
   async function remove(row) {
-    if (!window.confirm(`Delete submission from ${row.name}? This cannot be undone.`)) return;
-    const { error: err } = await supabase
-      .from('contact_submissions').delete().eq('id', row.id);
+    if (confirmId !== row.id) {
+      setConfirmId(row.id);
+      return;
+    }
+    setConfirmId(null);
+    const { data, error: err } = await supabase
+      .from('contact_submissions').delete().eq('id', row.id).select('id');
     if (err) return setError(err.message);
+    if (!data?.length) return setError(`Could not delete: ${RLS_HINT}`);
     setRows((rs) => rs.filter((r) => r.id !== row.id));
   }
 
@@ -111,7 +130,14 @@ export function SubmissionsTable({ initialRows, loadError }) {
                       <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setStatus(row, row.status === 'new' ? 'read' : 'new'); }}>
                         {row.status === 'new' ? 'Mark read' : 'Mark unread'}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); remove(row); }}>Delete</Button>
+                      <Button
+                        variant={confirmId === row.id ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); remove(row); }}
+                        onBlur={() => setConfirmId((id) => (id === row.id ? null : id))}
+                      >
+                        {confirmId === row.id ? 'Confirm delete' : 'Delete'}
+                      </Button>
                     </td>
                   </tr>
                   {openId === row.id && (
