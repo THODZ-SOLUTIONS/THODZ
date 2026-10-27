@@ -24,6 +24,7 @@ export function SubmissionsTable({ initialRows, loadError }) {
   const router = useRouter();
   const [rows, setRows] = React.useState(initialRows);
   const [openId, setOpenId] = React.useState(null);
+  const [confirmId, setConfirmId] = React.useState(null);
   const [error, setError] = React.useState(loadError);
   const supabase = React.useMemo(() => createClient(), []);
 
@@ -45,8 +46,16 @@ export function SubmissionsTable({ initialRows, loadError }) {
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, status } : r)));
   }
 
+  // Two-step inline confirm rather than window.confirm(): browsers suppress
+  // that dialog once the visitor ticks "prevent this page from creating
+  // additional dialogs", and a suppressed confirm returns false, so Delete
+  // silently did nothing with no way to tell.
   async function remove(row) {
-    if (!window.confirm(`Delete submission from ${row.name}? This cannot be undone.`)) return;
+    if (confirmId !== row.id) {
+      setConfirmId(row.id);
+      return;
+    }
+    setConfirmId(null);
     const { data, error: err } = await supabase
       .from('contact_submissions').delete().eq('id', row.id).select('id');
     if (err) return setError(err.message);
@@ -121,7 +130,14 @@ export function SubmissionsTable({ initialRows, loadError }) {
                       <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setStatus(row, row.status === 'new' ? 'read' : 'new'); }}>
                         {row.status === 'new' ? 'Mark read' : 'Mark unread'}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); remove(row); }}>Delete</Button>
+                      <Button
+                        variant={confirmId === row.id ? 'primary' : 'ghost'}
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); remove(row); }}
+                        onBlur={() => setConfirmId((id) => (id === row.id ? null : id))}
+                      >
+                        {confirmId === row.id ? 'Confirm delete' : 'Delete'}
+                      </Button>
                     </td>
                   </tr>
                   {openId === row.id && (
