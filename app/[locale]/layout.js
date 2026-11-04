@@ -20,6 +20,7 @@ const PRELOAD_FONTS = {
   en: ['/fonts/poppins-400-latin.woff2'],
   fr: ['/fonts/poppins-400-latin.woff2'],
   ar: ['/fonts/alexandria-100-900-arabic.woff2', '/fonts/alexandria-100-900-latin.woff2'],
+  es: ['/fonts/poppins-400-latin.woff2'],
 };
 
 export function generateStaticParams() {

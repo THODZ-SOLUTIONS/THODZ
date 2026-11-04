@@ -162,9 +162,12 @@
   font-weight: var(--weight-medium);
 }
 
-/* Inline variant: every locale visible, used in the mobile menu. */
+/* Inline variant: every locale visible, used in the mobile menu. Wraps
+   because the row of self-named languages outgrows a 375px screen once a
+   fourth locale is added. */
 .locale-segmented {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: stretch;
   padding: 3px;
   gap: 2px;
