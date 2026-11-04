@@ -43,6 +43,11 @@ const TEXT = {
     body: 'お探しのページは存在しないか、移動しました。',
     backHome: 'ホームへ戻る',
   },
+  pt: {
+    title: 'Página não encontrada',
+    body: 'A página que procurava não existe, ou foi movida.',
+    backHome: 'Voltar à página inicial',
+  },
 };
 
 export default function NotFound() {

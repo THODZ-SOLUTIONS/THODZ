@@ -26,6 +26,7 @@ const PRELOAD_FONTS = {
   // Japanese renders its CJK from the reader's own system gothic (see
   // styles/tokens/fonts.css); only the Latin run needs Poppins.
   ja: ['/fonts/poppins-400-latin.woff2'],
+  pt: ['/fonts/poppins-400-latin.woff2'],
 };
 
 export function generateStaticParams() {
