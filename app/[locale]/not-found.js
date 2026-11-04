@@ -38,6 +38,11 @@ const TEXT = {
     body: 'De pagina die je zocht bestaat niet, of is verplaatst.',
     backHome: 'Terug naar de homepagina',
   },
+  ja: {
+    title: 'ページが見つかりません',
+    body: 'お探しのページは存在しないか、移動しました。',
+    backHome: 'ホームへ戻る',
+  },
 };
 
 export default function NotFound() {
