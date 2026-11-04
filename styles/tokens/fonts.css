@@ -4,7 +4,14 @@
    Poppins carries all Latin text (display and body). On the Arabic locale,
    Alexandria — a variable font covering Arabic and Latin — takes over every
    role, mono included: IBM Plex Mono has no Arabic glyphs and letting the
-   browser fall back to a system monospace reads as broken. */
+   browser fall back to a system monospace reads as broken.
+
+   Japanese is the exception to self-hosting. A CJK webfont is ~5MB across
+   100+ unicode-range subsets, which would outweigh the rest of the repo for
+   one locale, so ja falls through to the reader's own system gothic. Poppins
+   stays first in the stack: its @font-face unicode-ranges cover Latin only,
+   so Latin runs (THODZ, Next.js, pub.dev) keep the brand face and every CJK
+   codepoint falls through to the next family. */
 :root {
   --font-display: 'Poppins', system-ui, sans-serif;
   --font-body: 'Poppins', system-ui, sans-serif;
@@ -24,4 +31,50 @@ html[lang='ar'] {
   --tracking-normal: 0em;
   --tracking-wide: 0em;
   --tracking-label: 0em;
+}
+
+/* Hiragino ships on macOS/iOS, Yu Gothic and Meiryo on Windows, Noto Sans JP
+   on Android and most Linux desktops — between them every reader is covered
+   without a download. */
+html[lang='ja'] {
+  --font-display: 'Poppins', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic',
+    'Yu Gothic UI', Meiryo, 'Noto Sans JP', system-ui, sans-serif;
+  --font-body: 'Poppins', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic',
+    'Yu Gothic UI', Meiryo, 'Noto Sans JP', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Hiragino Sans', 'Yu Gothic', Meiryo, 'Noto Sans JP',
+    ui-monospace, monospace;
+
+  /* The tracking scale is tuned to Poppins at display sizes. Kanji and kana
+     already fill their em box, so negative tracking collides the glyphs and
+     the positive label tracking shears compound words apart. Zero the lot,
+     as the Arabic locale does. */
+  --tracking-display: 0em;
+  --tracking-tighter: 0em;
+  --tracking-tight: 0em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0em;
+  --tracking-label: 0em;
+
+  /* Japanese has no ascenders/descenders to create optical gaps between
+     lines, so the Latin display leading reads as cramped. */
+  --lh-display: 1.3;
+  --lh-tight: 1.4;
+  --lh-snug: 1.5;
+  --lh-normal: 1.8;
+  --lh-relaxed: 1.9;
+
+  /* Kanji and kana are full-width, so the display scale that fits an English
+     headline fits about five Japanese characters per line and breaks compound
+     words across lines. Scale the display tier down ~22%; headings and body
+     already read correctly at the Latin sizes. */
+  --text-display-xl: clamp(1.875rem, 6.6vw, 3.5rem);
+  --text-display-l: clamp(1.625rem, 5vw, 2.5rem);
+  --text-display-m: clamp(1.5rem, 3.6vw, 2.125rem);
+  --text-display-s: clamp(1.3125rem, 2.8vw, 1.75rem);
+
+  /* Japanese does not break at spaces, so the browser may break anywhere
+     unless told to apply kinsoku shori: no line starting with a small kana,
+     a closing bracket or a trailing mark. */
+  line-break: strict;
+  overflow-wrap: normal;
 }
