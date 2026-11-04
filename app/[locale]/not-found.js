@@ -28,6 +28,16 @@ const TEXT = {
     body: 'La página que has pedido no existe, o se ha movido.',
     backHome: 'Volver a la página de inicio',
   },
+  de: {
+    title: 'Seite nicht gefunden',
+    body: 'Die angeforderte Seite existiert nicht oder wurde verschoben.',
+    backHome: 'Zurück zur Startseite',
+  },
+  nl: {
+    title: 'Pagina niet gevonden',
+    body: 'De pagina die je zocht bestaat niet, of is verplaatst.',
+    backHome: 'Terug naar de homepagina',
+  },
 };
 
 export default function NotFound() {
