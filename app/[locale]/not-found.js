@@ -23,13 +23,18 @@ const TEXT = {
     body: 'الصفحة التي طلبتها غير موجودة، أو تم نقلها.',
     backHome: 'العودة إلى الصفحة الرئيسية',
   },
+  es: {
+    title: 'Página no encontrada',
+    body: 'La página que has pedido no existe, o se ha movido.',
+    backHome: 'Volver a la página de inicio',
+  },
 };
 
 export default function NotFound() {
   const pathname = usePathname() || '/';
   const first = pathname.split('/')[1];
   const locale = LOCALES.includes(first) ? first : DEFAULT_LOCALE;
-  const t = TEXT[locale];
+  const t = TEXT[locale] || TEXT[DEFAULT_LOCALE];
 
   return (
     <div className="container container--sm" style={{ padding: '120px 0', textAlign: 'center' }}>
