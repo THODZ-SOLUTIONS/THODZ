@@ -10,6 +10,26 @@
     // Allow outbound fetches (Supabase, Resend) from the worker.
     "global_fetch_strictly_public"
   ],
+  // How traffic reaches this Worker. Both entries already exist in the
+  // Cloudflare dashboard; listing them here keeps the wiring reviewable in the
+  // repo instead of being invisible until it misbehaves.
+  //
+  // CAUTION: once "routes" is present, `wrangler deploy` RECONCILES the live
+  // routes against this list -- any route NOT listed here is REMOVED from the
+  // Worker. Add to this array first, then to the dashboard, never the reverse.
+  "routes": [
+    // The apex is a Custom Domain: Cloudflare owns its DNS record and the
+    // request terminates at the Worker. Not a route, hence custom_domain.
+    { "pattern": "thodz.com", "custom_domain": true },
+    // www is a plain zone route. It used to be covered by a wildcard
+    // `*.thodz.com/*`, which ALSO swallowed drop.thodz.com and sent it to this
+    // Worker. That wildcard was replaced by this specific pattern 2026-11-06.
+    { "pattern": "www.thodz.com/*", "zone_name": "thodz.com" }
+  ],
+  // Must stay explicit. Wrangler derives `defaultWorkersDev = routes.length === 0`,
+  // so merely adding "routes" above would flip this to false and silently
+  // disable thodz.hatem-telli.workers.dev on the next deploy.
+  "workers_dev": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
