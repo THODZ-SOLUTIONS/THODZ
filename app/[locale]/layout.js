@@ -3,7 +3,7 @@ import { preload } from 'react-dom';
 import { Navbar } from '@/components/navigation/Navbar';
 import { Footer } from '@/components/navigation/Footer';
 import { JsonLd } from '@/components/core/JsonLd';
-import { SITE_URL, CONTACT, SOCIALS } from '@/lib/config';
+import { SITE_URL, CONTACT, SOCIALS, ADDRESS } from '@/lib/config';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import { LOCALES, OG_LOCALES, localeDir, localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
@@ -151,7 +151,12 @@ function organizationSchema(locale) {
     image: `${SITE_URL}/opengraph-image`,
     email: CONTACT.email,
     telephone: CONTACT.phoneE164,
-    address: { '@type': 'PostalAddress', addressCountry: 'DZ' },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: ADDRESS.locality,
+      addressRegion: ADDRESS.region,
+      addressCountry: ADDRESS.country,
+    },
     areaServed: ['DZ', 'FR', 'EU', 'MENA', 'Worldwide'],
     availableLanguage: ['French', 'English', 'Arabic'],
     founder: TEAM.map((m) => ({ '@type': 'Person', name: m.name, jobTitle: m.role })),
