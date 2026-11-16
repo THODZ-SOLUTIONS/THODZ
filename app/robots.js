@@ -12,7 +12,9 @@ export default function robots() {
         disallow: ['/api/', '/admin'],
       },
     ],
+    // No `host`: it is a Yandex extension that Google ignores, and the
+    // canonical host is already settled by the www -> apex redirect in
+    // middleware.js and by every page's self-referencing canonical.
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
   };
 }

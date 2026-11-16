@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
+import { SITE_URL } from '@/lib/config';
 
 // Every page lives under /{locale}. Requests without a locale prefix are
 // redirected to the visitor's locale: their explicit choice (cookie set by the
@@ -68,20 +69,52 @@ async function adminAuth(request) {
   return response;
 }
 
+// Case studies pulled from the public site. Their detail pages are not
+// generated (CASE_STUDIES filters `hidden`), so the URL 404s — and a 404 on a
+// URL Google already has is a dead end for anything linking to it. Send them
+// to the work index instead, permanently.
+const RETIRED_CASE_STUDIES = ['giftili', 'boonka'];
+
 export function middleware(request) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     return adminAuth(request);
   }
 
+  // One canonical host. www serves the same Worker, so without this it is a
+  // full duplicate of the site held together only by canonical tags; a
+  // permanent redirect is the stronger signal and costs the visitor one hop.
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    return NextResponse.redirect(`${SITE_URL}${pathname}${search}`, 308);
+  }
+
   const hasLocale = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
+
+  const retired = RETIRED_CASE_STUDIES.find(
+    (slug) => pathname === `/work/${slug}` || LOCALES.some((l) => pathname === `/${l}/work/${slug}`)
+  );
+  if (retired) {
+    const locale = hasLocale ? pathname.split('/')[1] : detectLocale(request);
+    return NextResponse.redirect(new URL(`/${locale}/work`, request.url), 308);
+  }
+
   if (hasLocale) return;
 
-  const locale = detectLocale(request);
+  // The home page negotiates: the same URL answers differently per visitor, so
+  // the redirect has to stay temporary or a browser would cache one locale
+  // forever. Every other unprefixed path is a pre-i18n URL that no longer
+  // exists in the information architecture, so it redirects permanently to the
+  // default locale. That trades locale detection on old links for a signal
+  // Google treats as final.
   const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-  return NextResponse.redirect(url);
+  if (pathname === '/') {
+    url.pathname = `/${detectLocale(request)}`;
+    return NextResponse.redirect(url, 307);
+  }
+  url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
+  return NextResponse.redirect(url, 308);
 }
 
 export const config = {

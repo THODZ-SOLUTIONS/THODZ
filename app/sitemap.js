@@ -3,40 +3,44 @@ import { SITE_URL } from '@/lib/config';
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { SERVICE_PAGES, SERVICE_LOCALES } from '@/lib/services';
 
-// Next generates /sitemap.xml from this. Every page exists once per locale;
-// each entry carries its hreflang alternates so search engines treat the
-// three URLs as translations of one page. Case study URLs come straight from
-// lib/content.js, so a new entry (or a `hidden: true` one) is reflected
-// without touching this file.
+// Next generates /sitemap.xml from this. Every page exists once per locale and
+// carries its hreflang alternates, so search engines treat the set as
+// translations of one page rather than duplicates. Case study and service URLs
+// come straight from the data, so a new entry (or a `hidden: true` one) is
+// reflected without touching this file.
+//
+// No <priority> and no <changefreq>: Google ignores both, and the arithmetic
+// that produced them was emitting values like 0.6000000000000001.
+//
+// No <lastmod> either, which is a deliberate second choice. It used to carry
+// the build timestamp, so all 198 URLs claimed to change whenever anything
+// did. Deriving it from git was tried and is no better: every case study's
+// text lives in lib/content.js and every static page's in a dictionary, so a
+// single edit moves the date on all of them. A lastmod that is wrong for 13
+// pages out of 14 teaches Google to discount the field across the whole
+// sitemap, which costs more than leaving it out.
+//
+// To publish a real one, give each entry an `updated:` field that is
+// maintained when its copy changes, or split the content so that a page maps
+// to a file of its own.
 export default function sitemap() {
-  const now = new Date();
-
   const pages = [
-    { path: '', priority: 1, changeFrequency: 'monthly' },
-    { path: '/work', priority: 0.9, changeFrequency: 'monthly' },
-    { path: '/pricing', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/about', priority: 0.7, changeFrequency: 'yearly' },
-    { path: '/contact', priority: 0.7, changeFrequency: 'yearly' },
-    { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
-    { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
-    ...CASE_STUDIES.map((c) => ({
-      path: `/work/${c.slug}`,
-      priority: 0.6,
-      changeFrequency: 'yearly',
-    })),
+    { path: '' },
+    { path: '/work' },
+    { path: '/pricing' },
+    { path: '/about' },
+    { path: '/contact' },
+    { path: '/privacy' },
+    { path: '/terms' },
+    ...CASE_STUDIES.map((c) => ({ path: `/work/${c.slug}` })),
   ];
 
   // Service pages exist only in SERVICE_LOCALES, so they are emitted
-  // separately: listing a locale here that the route does not generate would
-  // put 404s in the sitemap and declare hreflang alternates that are not
-  // there.
+  // separately: listing a locale the route does not generate would put 404s in
+  // the sitemap and declare hreflang alternates that are not there.
   const servicePages = [
-    { path: '/services', priority: 0.9, changeFrequency: 'monthly' },
-    ...SERVICE_PAGES.map((s) => ({
-      path: `/services/${s.slug}`,
-      priority: 0.8,
-      changeFrequency: 'monthly',
-    })),
+    { path: '/services' },
+    ...SERVICE_PAGES.map((s) => ({ path: `/services/${s.slug}` })),
   ];
 
   const entries = (list, locales) =>
@@ -45,9 +49,6 @@ export default function sitemap() {
       languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${p.path}`;
       return locales.map((locale) => ({
         url: `${SITE_URL}/${locale}${p.path}`,
-        lastModified: now,
-        changeFrequency: p.changeFrequency,
-        priority: locale === DEFAULT_LOCALE ? p.priority : Math.max(0.1, p.priority - 0.2),
         alternates: { languages },
       }));
     });
