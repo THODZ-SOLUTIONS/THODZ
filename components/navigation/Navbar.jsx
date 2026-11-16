@@ -37,7 +37,7 @@ function NavLogo({ className }) {
   );
 }
 
-export function Navbar({ locale, t }) {
+export function Navbar({ locale, t, showServices = false }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -46,6 +46,10 @@ export function Navbar({ locale, t }) {
     // Anchors point at the homepage sections; #problems, #process and #faq
     // only exist on the home route, which is where these links go.
     { label: t.problems, href: `/${locale}#problems` },
+    // Service pages only exist in the locales that have translated copy, so
+    // the link is driven by a prop rather than by importing lib/services.js
+    // into a client component, which would ship its prose to the browser.
+    ...(showServices ? [{ label: t.services, href: `/${locale}/services` }] : []),
     { label: t.work, href: `/${locale}/work` },
     { label: t.howItRuns, href: `/${locale}#process` },
     { label: t.pricing, href: `/${locale}/pricing` },
