@@ -133,7 +133,12 @@ export default async function RootLayout({ children, params }) {
           dangerouslySetInnerHTML={{ __html: `<script>${THEME_INIT_SCRIPT}</script>` }}
         />
         <JsonLd data={organizationSchema(locale)} />
-        <Navbar locale={locale} t={t.nav} showServices={showServices} />
+        <Navbar
+          locale={locale}
+          t={t.nav}
+          showServices={showServices}
+          serviceLocales={SERVICE_LOCALES}
+        />
         <main>{children}</main>
         <Footer locale={locale} t={t} showServices={showServices} />
       </body>

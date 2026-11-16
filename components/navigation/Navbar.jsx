@@ -1,16 +1,16 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { Icon } from '@/components/core/Icon';
-import { ThemeToggle } from '@/components/core/ThemeToggle';
-import { LocaleSwitcher } from '@/components/navigation/LocaleSwitcher';
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { Icon } from "@/components/core/Icon";
+import { ThemeToggle } from "@/components/core/ThemeToggle";
+import { LocaleSwitcher } from "@/components/navigation/LocaleSwitcher";
 
 // Anchor links (/en#services) are never "current"; real routes are, including
 // their subpaths so /en/work/some-case keeps Work highlighted.
 function isActive(href, pathname) {
-  if (href.includes('#')) return false;
+  if (href.includes("#")) return false;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -37,7 +37,12 @@ function NavLogo({ className }) {
   );
 }
 
-export function Navbar({ locale, t, showServices = false }) {
+export function Navbar({
+  locale,
+  t,
+  showServices = false,
+  serviceLocales = [],
+}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -49,7 +54,9 @@ export function Navbar({ locale, t, showServices = false }) {
     // Service pages only exist in the locales that have translated copy, so
     // the link is driven by a prop rather than by importing lib/services.js
     // into a client component, which would ship its prose to the browser.
-    ...(showServices ? [{ label: t.services, href: `/${locale}/services` }] : []),
+    ...(showServices
+      ? [{ label: t.services, href: `/${locale}/services` }]
+      : []),
     { label: t.work, href: `/${locale}/work` },
     { label: t.howItRuns, href: `/${locale}#process` },
     { label: t.pricing, href: `/${locale}/pricing` },
@@ -69,12 +76,12 @@ export function Navbar({ locale, t, showServices = false }) {
       });
     }
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`}>
+    <nav className={`nav${scrolled ? " nav--scrolled" : ""}`}>
       <div className="nav-inner">
         <Link href={`/${locale}`} className="nav-logo">
           <NavLogo className="" />
@@ -85,20 +92,24 @@ export function Navbar({ locale, t, showServices = false }) {
             <Link
               key={l.label}
               href={l.href}
-              className={`nav-link${isActive(l.href, pathname) ? ' nav-link--active' : ''}`}
-              aria-current={isActive(l.href, pathname) ? 'page' : undefined}
+              className={`nav-link${isActive(l.href, pathname) ? " nav-link--active" : ""}`}
+              aria-current={isActive(l.href, pathname) ? "page" : undefined}
             >
               {l.label}
             </Link>
           ))}
           <LocaleSwitcher
+            serviceLocales={serviceLocales}
             locale={locale}
             label={t.languageLabel}
             autoLabel={t.languageAuto}
             autoHint={t.languageAutoHint}
           />
           <ThemeToggle labels={t.theme} />
-          <Link href={`/${locale}/contact`} className="btn btn--primary btn--sm">
+          <Link
+            href={`/${locale}/contact`}
+            className="btn btn--primary btn--sm"
+          >
             {t.bookCall}
           </Link>
         </div>
@@ -111,19 +122,25 @@ export function Navbar({ locale, t, showServices = false }) {
           aria-label={open ? t.closeMenu : t.openMenu}
           onClick={() => setOpen((v) => !v)}
         >
-          <Icon name={open ? 'X' : 'Menu'} size={18} />
+          <Icon name={open ? "X" : "Menu"} size={18} />
         </button>
       </div>
 
       {open && (
         <div id="nav-mobile" className="nav-mobile">
           {links.map((l) => (
-            <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className="nav-link">
+            <Link
+              key={l.label}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className="nav-link"
+            >
               {l.label}
             </Link>
           ))}
           <div className="nav-mobile-controls">
             <LocaleSwitcher
+              serviceLocales={serviceLocales}
               locale={locale}
               label={t.languageLabel}
               autoLabel={t.languageAuto}
@@ -132,7 +149,11 @@ export function Navbar({ locale, t, showServices = false }) {
             />
             <ThemeToggle labels={t.theme} />
           </div>
-          <Link href={`/${locale}/contact`} onClick={() => setOpen(false)} className="btn btn--primary btn--md">
+          <Link
+            href={`/${locale}/contact`}
+            onClick={() => setOpen(false)}
+            className="btn btn--primary btn--md"
+          >
             {t.bookCall}
           </Link>
         </div>
