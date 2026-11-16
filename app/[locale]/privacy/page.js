@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   return {
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/privacy'),
+    alternates: localeAlternates('/privacy', locale),
     ...pageOpenGraph({
       locale,
       path: '/privacy',

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   return {
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/contact'),
+    alternates: localeAlternates('/contact', locale),
     ...pageOpenGraph({
       locale,
       path: '/contact',

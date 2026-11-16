@@ -59,7 +59,7 @@ export async function generateMetadata({ params }) {
     authors: [{ name: 'THODZ SOLUTIONS', url: SITE_URL }],
     creator: 'THODZ SOLUTIONS',
     publisher: 'THODZ SOLUTIONS',
-    alternates: localeAlternates(''),
+    alternates: localeAlternates('', locale),
     robots: {
       index: true,
       follow: true,

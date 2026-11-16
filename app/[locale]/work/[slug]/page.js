@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
   return {
     title: study.title,
     description: study.summary,
-    alternates: localeAlternates(`/work/${study.slug}`),
+    alternates: localeAlternates(`/work/${study.slug}`, locale),
     // Falls back to the generated card when a case study has no screenshot
     // yet, rather than sharing as a bare link.
     ...pageOpenGraph({
