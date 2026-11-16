@@ -1,6 +1,7 @@
 import { CASE_STUDIES } from '@/lib/content';
 import { SITE_URL } from '@/lib/config';
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
+import { SERVICE_PAGES, SERVICE_LOCALES } from '@/lib/services';
 
 // Next generates /sitemap.xml from this. Every page exists once per locale;
 // each entry carries its hreflang alternates so search engines treat the
@@ -25,18 +26,31 @@ export default function sitemap() {
     })),
   ];
 
-  return pages.flatMap((p) => {
-    const languages = Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}${p.path}`]));
-    // Matches the x-default the page metadata already declares; a sitemap
-    // whose alternates disagree with the page's is a conflicting signal.
-    languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${p.path}`;
-    return LOCALES.map((locale) => ({
-      url: `${SITE_URL}/${locale}${p.path}`,
-      lastModified: now,
-      changeFrequency: p.changeFrequency,
-      // The default locale is the canonical face of each page.
-      priority: locale === DEFAULT_LOCALE ? p.priority : Math.max(0.1, p.priority - 0.2),
-      alternates: { languages },
-    }));
-  });
+  // Service pages exist only in SERVICE_LOCALES, so they are emitted
+  // separately: listing a locale here that the route does not generate would
+  // put 404s in the sitemap and declare hreflang alternates that are not
+  // there.
+  const servicePages = [
+    { path: '/services', priority: 0.9, changeFrequency: 'monthly' },
+    ...SERVICE_PAGES.map((s) => ({
+      path: `/services/${s.slug}`,
+      priority: 0.8,
+      changeFrequency: 'monthly',
+    })),
+  ];
+
+  const entries = (list, locales) =>
+    list.flatMap((p) => {
+      const languages = Object.fromEntries(locales.map((l) => [l, `${SITE_URL}/${l}${p.path}`]));
+      languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${p.path}`;
+      return locales.map((locale) => ({
+        url: `${SITE_URL}/${locale}${p.path}`,
+        lastModified: now,
+        changeFrequency: p.changeFrequency,
+        priority: locale === DEFAULT_LOCALE ? p.priority : Math.max(0.1, p.priority - 0.2),
+        alternates: { languages },
+      }));
+    });
+
+  return [...entries(pages, LOCALES), ...entries(servicePages, SERVICE_LOCALES)];
 }

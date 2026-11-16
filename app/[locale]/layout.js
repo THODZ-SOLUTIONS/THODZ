@@ -7,6 +7,7 @@ import { SITE_URL, CONTACT, SOCIALS, ADDRESS } from '@/lib/config';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import { LOCALES, OG_LOCALES, localeDir, localeAlternates } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
+import { SERVICE_LOCALES } from '@/lib/services';
 
 // The generated share card (app/opengraph-image.js), referenced by path so
 // metadataBase resolves it to an absolute URL.
@@ -100,6 +101,9 @@ export const viewport = {
 export default async function RootLayout({ children, params }) {
   const { locale } = await params;
   const t = getDictionary(locale);
+  // Computed here so lib/services.js stays out of the client bundle; the nav
+  // and footer receive a boolean, not the data.
+  const showServices = SERVICE_LOCALES.includes(locale);
 
   for (const href of PRELOAD_FONTS[locale] || []) {
     preload(href, { as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' });
@@ -129,9 +133,9 @@ export default async function RootLayout({ children, params }) {
           dangerouslySetInnerHTML={{ __html: `<script>${THEME_INIT_SCRIPT}</script>` }}
         />
         <JsonLd data={organizationSchema(locale)} />
-        <Navbar locale={locale} t={t.nav} />
+        <Navbar locale={locale} t={t.nav} showServices={showServices} />
         <main>{children}</main>
-        <Footer locale={locale} t={t} />
+        <Footer locale={locale} t={t} showServices={showServices} />
       </body>
     </html>
   );

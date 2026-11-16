@@ -70,6 +70,76 @@
   margin: 0;
 }
 
+/* Service card as a link (the /services index). The base .service-card was
+   built for the static homepage grid, where the heading is an h3; on the
+   index the same card is the page's section heading, so it carries an h2 and
+   needs the same treatment. */
+
+.service-card h2 {
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.service-card--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.service-card-more {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-accent);
+}
+
+/* Proof list: the case studies that back a service claim. Deliberately plain
+   rows rather than cards, so they read as citations under the argument and
+   not as a second gallery competing with /work. */
+
+.proof-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.proof-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.proof-item:hover,
+.proof-item:focus-visible {
+  color: var(--text-accent);
+}
+
+.proof-item-title {
+  font-size: var(--text-body);
+  color: inherit;
+}
+
+.proof-item-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+
 /* Case study card ------------------------------------------------------- */
 
 .case-card {
