@@ -12,7 +12,9 @@
     "lint": "next lint",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare deploy"
+    "cf:deploy": "opennextjs-cloudflare deploy",
+    "check:seo": "node scripts/check-seo.mjs",
+    "build:check": "next build && node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",
