@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
   return {
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/work'),
+    alternates: localeAlternates('/work', locale),
     ...pageOpenGraph({
       locale,
       path: '/work',
