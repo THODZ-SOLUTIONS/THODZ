@@ -19,16 +19,29 @@ export async function generateMetadata({ params }) {
   const study = getContent(locale).CASE_STUDIES.find((c) => c.slug === slug);
   if (!study) return {};
   const image = study.images?.[0]?.src;
+
+  // `title` and `summary` are page copy: the h1 and the lede a reader sees.
+  // They are written to read well, not to fit a search result, and once
+  // translated most of them ran past what Google renders. metaTitle and
+  // metaDescription override them for the tags only, and exist on a case
+  // study (or a locale's overlay of one) solely where the copy overflows.
+  const metaTitle = study.metaTitle || study.title;
+  const metaDescription = study.metaDescription || study.summary;
+
   return {
-    title: study.title,
-    description: study.summary,
+    // Absolute, because the layout's template appends ' · THODZ SOLUTIONS'
+    // — 18 characters that pushed 61 of these titles past the limit. The
+    // short brand keeps THODZ in the result and costs 8.
+    title: { absolute: `${metaTitle} · THODZ` },
+    description: metaDescription,
     alternates: localeAlternates(`/work/${study.slug}`, locale),
     // Falls back to the generated card when a case study has no screenshot
-    // yet, rather than sharing as a bare link.
+    // yet, rather than sharing as a bare link. Share cards have no length
+    // budget, so they keep the full name and the untrimmed summary.
     ...pageOpenGraph({
       locale,
       path: `/work/${study.slug}`,
-      title: study.title,
+      title: `${study.title} · THODZ SOLUTIONS`,
       description: study.summary,
       image,
       type: 'article',
