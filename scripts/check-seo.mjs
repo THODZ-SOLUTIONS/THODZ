@@ -52,6 +52,8 @@ const grab = (html, re) => {
 };
 
 const problems = [];
+// (locale, path-without-locale, title, description) for the cross-locale check
+const meta = [];
 const seen = { title: new Map(), description: new Map() };
 let checked = 0;
 
@@ -107,6 +109,8 @@ for (const file of walk(BASE)) {
     else seen[field].set(key, name);
   }
 
+  meta.push([locale, '/' + rest.join('/'), title, desc]);
+
   // 5. hreflang must be present and must include x-default.
   const alts = [...html.matchAll(/<link rel="alternate" hrefLang="([^"]+)"/g)].map((m) => m[1]);
   if (alts.length === 0) problems.push(`${name}: no hreflang alternates`);
@@ -126,6 +130,38 @@ for (const file of walk(BASE)) {
   }
 }
 
+// --- English leaking into a translated page ------------------------------
+//
+// A description byte-identical to the English one means the translation did
+// not reach the tag. That happened for real: the English case studies carry
+// metaTitle/metaDescription only where the English copy overflows, and
+// spreading the English entry first let those survive into every locale that
+// had not defined its own -- so Arabic and Japanese pages rendered English
+// descriptions while displaying Arabic and Japanese prose.
+//
+// Descriptions only. A title can legitimately be the same in every language
+// when it is a proper name: "Ability Beyond Disability" is the project's name,
+// not an untranslated string. The metaTitle half of the same bug is caught
+// precisely in the source check below instead.
+//
+// Compared per path, so it only ever fires on a page that exists in both.
+
+const byPath = new Map();
+for (const [locale, path, title, desc] of meta) {
+  if (!byPath.has(path)) byPath.set(path, new Map());
+  byPath.get(path).set(locale, { title, desc });
+}
+for (const [path, locales] of byPath) {
+  const en = locales.get('en');
+  if (!en) continue;
+  for (const [locale, v] of locales) {
+    if (locale === 'en') continue;
+    if (v.desc && v.desc === en.desc) {
+      problems.push(`/${locale}${path}: description is identical to English — the translation did not reach the tag`);
+    }
+  }
+}
+
 // --- source shapes -------------------------------------------------------
 //
 // Not built HTML, but it belongs here because the failure is invisible in the
@@ -135,6 +171,35 @@ for (const file of walk(BASE)) {
 // French and Arabic homepages shipped English service names for days with
 // nothing failing. Only esbuild, during the Cloudflare build, ever said a
 // word about it.
+
+// The English metaTitle must not appear in a translated page's <title>.
+//
+// metaTitle exists on an English case study only where the English headline
+// overflows the SERP. Spreading the English entry first let that survive into
+// locales that had not defined their own, so an Arabic page with a perfectly
+// good Arabic title rendered the English one in its <title> tag.
+// mergeCaseStudies now drops the override when the locale translated the
+// field it overrides; this checks the result rather than the condition.
+//
+// Keyed on metaTitle specifically, so a title that is the same in every
+// language because it is a proper name -- "Ability Beyond Disability" -- is
+// not mistaken for an untranslated string.
+{
+  const { CASE_STUDIES } = await import('../lib/content.js');
+  const overrides = new Map(
+    CASE_STUDIES.filter((c) => c.metaTitle).map((c) => [`/work/${c.slug}`, c.metaTitle])
+  );
+  for (const [locale, path, title] of meta) {
+    if (locale === 'en') continue;
+    const english = overrides.get(path);
+    if (english && title && title.includes(english)) {
+      problems.push(
+        `/${locale}${path}: <title> carries the English metaTitle — ` +
+          'the locale translated the headline but the override overrode it'
+      );
+    }
+  }
+}
 
 const OVERLAY_SHAPES = {
   services: 'array',
