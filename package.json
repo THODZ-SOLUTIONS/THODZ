@@ -14,8 +14,7 @@
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "check:seo": "node scripts/check-seo.mjs",
-    "build:check": "next build && node scripts/check-seo.mjs",
-    "images": "node scripts/generate-image-variants.mjs"
+    "build:check": "next build && node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",
@@ -34,8 +33,7 @@
     "@emnapi/runtime": "^1.11.3",
     "@opennextjs/cloudflare": "^1.20.17",
     "eslint": "^9.0.0",
-    "eslint-config-next": "16.4.6",
-    "sharp": "^0.35.5"
+    "eslint-config-next": "16.4.6"
   },
   "overrides": {
     "postcss": "^8.5.25",

@@ -1,0 +1,44 @@
+# Cache policy for static assets.
+#
+# Workers Assets defaults every response to
+#   Cache-Control: public, max-age=0, must-revalidate
+# which is correct-but-cautious: nothing is ever reused without asking first.
+# With an ETag that means a conditional request per asset on every repeat
+# visit — about twenty round trips before a page can paint, which on a phone
+# is most of the cost of the visit.
+#
+# This file is parsed by Workers and overrides those defaults. It does NOT
+# apply to responses the Worker generates, so the HTML and its security
+# headers are unaffected; those come from next.config.mjs.
+
+# Content-hashed by the build. The filename changes whenever the bytes do, so
+# these can never go stale and never need revalidating.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Stable filenames, but the bytes behind them do not change — a font file is
+# finished. Replacing one means renaming it.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Source images and brand assets. NOT content-hashed: re-exporting an image
+# keeps its path, so `immutable` would strand anyone who had already cached
+# it. Thirty days with revalidation after that.
+#
+# This value also decides how long Cloudflare keeps the /cdn-cgi/image/
+# derivatives, which inherit their TTL from the origin response. Before this
+# file existed the transform pipeline answered with
+#   warning: cf-images 299 "cache-control is too restrictive"
+# and a four-hour TTL, which would have burned the monthly transform
+# allowance re-deriving images it had already made.
+/work/*
+  Cache-Control: public, max-age=2592000
+
+/assets/*
+  Cache-Control: public, max-age=2592000
+
+/team/*
+  Cache-Control: public, max-age=2592000
+
+/spline/*
+  Cache-Control: public, max-age=2592000
