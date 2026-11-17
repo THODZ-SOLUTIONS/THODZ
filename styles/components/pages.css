@@ -217,7 +217,7 @@
 .next-steps-index {
   font-family: var(--font-mono);
   font-size: var(--text-mono-s);
-  color: var(--fg-4);
+  color: var(--text-tertiary);
   padding-top: 2px;
 }
 
@@ -294,7 +294,7 @@
 }
 
 .case-client-prefix {
-  color: var(--fg-4);
+  color: var(--text-tertiary);
 }
 
 .case-body {
