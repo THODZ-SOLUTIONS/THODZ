@@ -1,6 +1,82 @@
 /** @type {import('next').NextConfig} */
+
+// The browser client in app/admin talks to Supabase directly (LoginForm.jsx
+// and SubmissionsTable.jsx are both 'use client'), so connect-src has to name
+// that origin or signing in to /admin fails with a CSP error and no clue why.
+//
+// It is derived from the same NEXT_PUBLIC_ variable the client bundle is built
+// with, so the two cannot drift. If the variable is missing at build time the
+// policy falls back to the project wildcard rather than locking the dashboard
+// out: a slightly wider connect-src is the better failure than a broken login.
+const supabase = (() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) return ['https://*.supabase.co', 'wss://*.supabase.co'];
+  try {
+    const { origin, host } = new URL(url);
+    return [origin, `wss://${host}`];
+  } catch {
+    return ['https://*.supabase.co', 'wss://*.supabase.co'];
+  }
+})();
+
+// 'unsafe-inline' in script-src is deliberate, not an oversight.
+//
+// Next inlines the flight payload and the bootstrap in <script> tags on every
+// page. The alternative is a per-request nonce, which has to come from
+// middleware — and a nonce is only unguessable if it is generated per request,
+// which makes every page dynamic. On Workers that turns 208 prerendered pages
+// into 208 Worker invocations, trading the site's whole caching story for a
+// directive that a fully static marketing site barely benefits from: there is
+// no user-supplied content rendered into these pages to inject into.
+//
+// What the policy still buys, even with inline allowed: no third-party script
+// origin can load, no object/embed, no framing, no base-tag hijack, and form
+// posts cannot be redirected off-site.
+//
+// No 'unsafe-eval' — verified nothing on the site needs it.
+const csp = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  // Cloudflare Web Analytics is injected at the edge, after the Worker has
+  // already written this header, so it has to be named here or the beacon is
+  // blocked on every page.
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
+  `connect-src 'self' https://cloudflareinsights.com ${supabase.join(' ')}`,
+  "manifest-src 'self'",
+  'upgrade-insecure-requests',
+].join('; ');
+
+// Set on every response the Worker writes. Assets under public/ are served by
+// the Cloudflare assets layer before the Worker runs, so fonts, images and the
+// logos do not get these — same limitation as the /fonts noindex header in
+// docs/seo.md. It does not weaken the CSP, which governs the document that
+// loads them, but HSTS genuinely belongs zone-wide in the dashboard too.
+//
+// No `preload` on HSTS. Submitting to the preload list is close to
+// irreversible and commits every present and future subdomain to HTTPS, which
+// is the site owner's call rather than a default.
+const securityHeaders = [
+  { key: 'Content-Security-Policy', value: csp },
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  // Redundant with frame-ancestors for anything current, kept for old browsers.
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+];
+
 const nextConfig = {
   reactStrictMode: true,
+
+  // Was advertising `x-powered-by: Next.js` on every response.
+  poweredByHeader: false,
 
   images: {
     // /_next/image does nothing on Cloudflare Workers without an IMAGES
@@ -27,6 +103,10 @@ const nextConfig = {
   // Cloudflare Transform Rule instead (see docs/seo.md).
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
       {
         source: '/:path(opengraph-image|twitter-image)',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
