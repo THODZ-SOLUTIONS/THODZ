@@ -25,20 +25,20 @@
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.445.0",
     "marked": "^14.1.4",
-    "next": "16.2.12",
+    "next": "16.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@emnapi/core": "^1.11.3",
     "@emnapi/runtime": "^1.11.3",
-    "@opennextjs/cloudflare": "^1.20.2",
+    "@opennextjs/cloudflare": "^1.20.17",
     "eslint": "^9.0.0",
-    "eslint-config-next": "16.2.12",
-    "sharp": "^0.35.3"
+    "eslint-config-next": "16.4.6",
+    "sharp": "^0.35.5"
   },
   "overrides": {
     "postcss": "^8.5.25",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.5"
   }
 }
