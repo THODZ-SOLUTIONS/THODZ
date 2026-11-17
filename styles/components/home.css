@@ -84,8 +84,13 @@
   }
 }
 
+/* Also used as a <span> inside the h1, where it must not inherit the
+   heading's weight or line-height. Both are set explicitly so the eyebrow
+   looks identical whether it sits beside the title or inside it. */
 .hero-v2-eyebrow {
   display: flex;
+  font-weight: 400;
+  line-height: var(--lh-normal);
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-mono);
@@ -1159,4 +1164,40 @@
   font-size: var(--text-body-m);
   font-weight: var(--weight-medium);
   color: var(--text-primary);
+}
+
+/* Prose introduction under the hero, plus the home page's links into the
+   service pages. Deliberately quiet: it carries the sentence a search engine
+   reads and the links a crawler follows, without competing with the hero. */
+
+.home-intro {
+  padding-block: var(--space-10) 0;
+}
+
+.home-intro-text {
+  max-inline-size: 68ch;
+  font-size: var(--text-body);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.home-intro-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-block-start: var(--space-5);
+}
+
+.home-intro-links a {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.home-intro-links a:hover,
+.home-intro-links a:focus-visible {
+  color: var(--text-accent);
 }

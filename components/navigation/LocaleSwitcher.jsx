@@ -31,7 +31,17 @@ function hasPinnedLocale() {
 //  - "inline": all locales visible as a segmented control. Used in the mobile
 //    menu, where a dropdown nested inside a menu is one tap too many and the
 //    panel has room to show every option.
-export function LocaleSwitcher({ locale, label, autoLabel, autoHint, variant = 'menu' }) {
+export function LocaleSwitcher({
+  locale,
+  label,
+  autoLabel,
+  autoHint,
+  variant = 'menu',
+  // Locales that publish service pages. Passed as a plain array from the
+  // server layout rather than imported, so lib/services.js and its prose
+  // never reach the client bundle.
+  serviceLocales = [],
+}) {
   const [open, setOpen] = useState(false);
   // null until mounted: the cookie is only readable on the client, and the
   // server cannot know whether this visitor pinned a language.
@@ -39,6 +49,11 @@ export function LocaleSwitcher({ locale, label, autoLabel, autoHint, variant = '
   const rootRef = useRef(null);
   const pathname = usePathname() || `/${locale}`;
   const rest = pathname.replace(/^\/[^/]+/, '');
+
+  // On a page that only some locales publish, offer only those. A switcher
+  // that links to a 404 is worse than one with fewer options.
+  const onServices = rest === '/services' || rest.startsWith('/services/');
+  const available = onServices && serviceLocales.length ? serviceLocales : LOCALES;
 
   useEffect(() => {
     setPinned(hasPinnedLocale());
@@ -81,7 +96,7 @@ export function LocaleSwitcher({ locale, label, autoLabel, autoHint, variant = '
     return (
       <div className="locale-inline">
         <div className="locale-segmented" role="group" aria-label={label}>
-          {LOCALES.map((l) => (
+          {available.map((l) => (
             <Link
               key={l}
               href={`/${l}${rest}`}
@@ -139,7 +154,7 @@ export function LocaleSwitcher({ locale, label, autoLabel, autoHint, variant = '
             {pinned === false && <Icon name="Check" size={14} aria-hidden="true" />}
           </button>
 
-          {LOCALES.map((l) => (
+          {available.map((l) => (
             <Link
               key={l}
               href={`/${l}${rest}`}

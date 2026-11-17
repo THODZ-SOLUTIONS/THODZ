@@ -35,6 +35,10 @@ export default async function WorkPage({ params }) {
       <PageHead eyebrow={t.headEyebrow} title={t.headTitle} sub={t.headSub} />
       <section className="section section--flush-top">
         <div className="container">
+          {/* The cards are h3s, which left this page jumping h1 -> h3 with
+              nothing in between. The grid has no visible heading by design,
+              so the h2 is there for screen readers and for the outline. */}
+          <h2 className="sr-only">{t.gridHeading}</h2>
           {/* Same card as the homepage grid, so a project looks identical
               wherever you meet it. */}
           <ShippedGrid locale={locale} studies={studies} />

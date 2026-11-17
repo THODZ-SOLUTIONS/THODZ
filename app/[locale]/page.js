@@ -4,6 +4,7 @@ import { JsonLd } from '@/components/core/JsonLd';
 import { Reveal } from '@/components/core/Reveal';
 import { HeroArt } from '@/components/home/HeroArt';
 import { ServiceMarquee } from '@/components/home/ServiceMarquee';
+import { SERVICE_LOCALES } from '@/lib/services';
 import { ProblemPicker } from '@/components/home/ProblemPicker';
 import { ShippedCarousel, ShippedGrid } from '@/components/home/ShippedCarousel';
 import { PricingPicker } from '@/components/home/PricingPicker';
@@ -55,6 +56,7 @@ export default async function HomePage({ params }) {
 
       <Hero locale={locale} t={t.home} />
       <ServiceMarquee services={content.SERVICES} />
+      <HomeIntro locale={locale} t={t.home} content={content} />
       <Problems locale={locale} t={t.home} content={content} />
       <Shipped locale={locale} t={t.home} content={content} featured={featured} />
       <OpenSource t={t.home} content={content} />
@@ -64,6 +66,40 @@ export default async function HomePage({ params }) {
       <FaqSection locale={locale} t={t.home} content={content} />
       <Start locale={locale} t={t.home} tForm={t.form} />
     </div>
+  );
+}
+
+/**
+ * A short prose introduction under the hero, and the only place on the home
+ * page that links to each service page.
+ *
+ * Both halves are here for the same reason. The hero is a slogan and a
+ * marquee of service names that are not links, so before this the home page
+ * described what THODZ does without ever saying it in a sentence a search
+ * engine could read, and without a single internal link to the pages that
+ * answer those queries.
+ *
+ * The service links render only in the locales that publish service pages;
+ * elsewhere the paragraph stands alone rather than pointing at 404s.
+ */
+function HomeIntro({ locale, t, content }) {
+  const hasServices = SERVICE_LOCALES.includes(locale);
+
+  return (
+    <section className="home-intro">
+      <div className="container">
+        <p className="home-intro-text">{t.intro}</p>
+        {hasServices && (
+          <nav className="home-intro-links" aria-label={t.introServicesLabel}>
+            {content.SERVICE_PAGES.map((s) => (
+              <Link key={s.slug} href={`/${locale}/services/${s.slug}`}>
+                {s.title}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -88,8 +124,16 @@ function Hero({ locale, t }) {
       <div className="container">
         <div className="hero-v2-grid">
           <div>
-            <div className="hero-v2-eyebrow">{t.heroEyebrow}</div>
-            <h1 className="hero-v2-title">{t.heroTitle}</h1>
+            {/* The eyebrow lives inside the h1 rather than beside it. It
+                carries the phrase people actually search for, and the h1 is
+                the strongest on-page signal of what a page is about — while
+                the slogan, which is what a reader should take away, stays the
+                visible headline. Styling is unchanged: .hero-v2-eyebrow keeps
+                its own size, weight and colour inside the heading. */}
+            <h1 className="hero-v2-title">
+              <span className="hero-v2-eyebrow">{t.heroEyebrow}</span>
+              {t.heroTitle}
+            </h1>
             <p className="hero-v2-sub">{t.heroSub}</p>
             <div className="hero-v2-actions">
               {/* No calendar is configured (CONTACT.bookingUrl is null), so
