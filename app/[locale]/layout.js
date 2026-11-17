@@ -9,6 +9,7 @@ import { LOCALES, OG_LOCALES, localeDir, localeAlternates } from '@/lib/i18n/con
 import { getDictionary, getContent } from '@/lib/i18n';
 import { SERVICE_LOCALES } from '@/lib/services';
 import { LANDING_LOCALES } from '@/lib/landing';
+import { getBlogLocales } from '@/lib/blog';
 
 // The generated share card (app/opengraph-image.js), referenced by path so
 // metadataBase resolves it to an absolute URL.
@@ -105,6 +106,7 @@ export default async function RootLayout({ children, params }) {
   // Computed here so lib/services.js stays out of the client bundle; the nav
   // and footer receive a boolean, not the data.
   const showServices = SERVICE_LOCALES.includes(locale);
+  const showBlog = getBlogLocales().includes(locale);
   // Landing page links for the footer, resolved server-side so their titles
   // are already translated and lib/landing.js stays off the client.
   const landingLinks = LANDING_LOCALES.includes(locale)
@@ -147,6 +149,7 @@ export default async function RootLayout({ children, params }) {
           t={t.nav}
           showServices={showServices}
           serviceLocales={SERVICE_LOCALES}
+          showBlog={showBlog}
         />
         <main>{children}</main>
         <Footer
@@ -154,6 +157,7 @@ export default async function RootLayout({ children, params }) {
           t={t}
           showServices={showServices}
           landingLinks={landingLinks}
+          showBlog={showBlog}
         />
       </body>
     </html>
