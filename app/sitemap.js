@@ -2,6 +2,7 @@ import { CASE_STUDIES } from '@/lib/content';
 import { SITE_URL } from '@/lib/config';
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { SERVICE_PAGES, SERVICE_LOCALES } from '@/lib/services';
+import { LANDING_PAGES, LANDING_LOCALES } from '@/lib/landing';
 
 // Next generates /sitemap.xml from this. Every page exists once per locale and
 // carries its hreflang alternates, so search engines treat the set as
@@ -53,5 +54,12 @@ export default function sitemap() {
       }));
     });
 
-  return [...entries(pages, LOCALES), ...entries(servicePages, SERVICE_LOCALES)];
+  // Landing pages are gated the same way, to their own locale set.
+  const landingPages = LANDING_PAGES.map((p) => ({ path: `/${p.slug}` }));
+
+  return [
+    ...entries(pages, LOCALES),
+    ...entries(servicePages, SERVICE_LOCALES),
+    ...entries(landingPages, LANDING_LOCALES),
+  ];
 }
