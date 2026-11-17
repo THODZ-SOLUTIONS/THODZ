@@ -27,7 +27,7 @@
 .footer-locale {
   font-family: var(--font-mono);
   font-size: var(--text-mono-s);
-  color: var(--fg-4);
+  color: var(--text-tertiary);
   margin: 0;
 }
 
