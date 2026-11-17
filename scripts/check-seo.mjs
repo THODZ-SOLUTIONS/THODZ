@@ -126,6 +126,43 @@ for (const file of walk(BASE)) {
   }
 }
 
+// --- source shapes -------------------------------------------------------
+//
+// Not built HTML, but it belongs here because the failure is invisible in the
+// browser and in `next build`. A locale overlay once had two `services` keys
+// — an array translating the homepage service cards, and an object keyed by
+// service-page slug. In an object literal the second wins silently, so the
+// French and Arabic homepages shipped English service names for days with
+// nothing failing. Only esbuild, during the Cloudflare build, ever said a
+// word about it.
+
+const OVERLAY_SHAPES = {
+  services: 'array',
+  servicePages: 'object',
+  landing: 'object',
+  caseStudies: 'object',
+};
+
+for (const locale of LOCALES.filter((l) => l !== 'en')) {
+  let overlay;
+  try {
+    overlay = (await import(`../lib/i18n/content/${locale}.js`)).default;
+  } catch {
+    continue; // a locale may legitimately have no overlay
+  }
+  for (const [key, shape] of Object.entries(OVERLAY_SHAPES)) {
+    const value = overlay[key];
+    if (value === undefined) continue;
+    const actual = Array.isArray(value) ? 'array' : typeof value;
+    if (actual !== shape) {
+      problems.push(
+        `lib/i18n/content/${locale}.js: "${key}" is ${actual}, expected ${shape} ` +
+          '(a duplicate key in the object literal silently replaced it)'
+      );
+    }
+  }
+}
+
 if (checked === 0) {
   console.error('check-seo: no built pages found. Run `next build` first.');
   process.exit(1);

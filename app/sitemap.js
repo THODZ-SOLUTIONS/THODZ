@@ -3,6 +3,7 @@ import { SITE_URL } from '@/lib/config';
 import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/config';
 import { SERVICE_PAGES, SERVICE_LOCALES } from '@/lib/services';
 import { LANDING_PAGES, LANDING_LOCALES } from '@/lib/landing';
+import { getBlogLocales, getPostSlugs, getPostLocales, getPost } from '@/lib/blog';
 
 // Next generates /sitemap.xml from this. Every page exists once per locale and
 // carries its hreflang alternates, so search engines treat the set as
@@ -57,9 +58,33 @@ export default function sitemap() {
   // Landing pages are gated the same way, to their own locale set.
   const landingPages = LANDING_PAGES.map((p) => ({ path: `/${p.slug}` }));
 
+  // The blog index, wherever something is published.
+  const blogLocales = getBlogLocales();
+
+  // Posts are the one thing here whose locale set differs per URL: an article
+  // written in English and French belongs in two sitemap entries with two
+  // alternates, not eight. Drafts are excluded entirely.
+  const postEntries = getPostSlugs().flatMap((slug) => {
+    const locales = getPostLocales(slug).filter((l) => {
+      const post = getPost(slug, l);
+      return post && !post.draft;
+    });
+    const path = `/blog/${slug}`;
+    const languages = Object.fromEntries(locales.map((l) => [l, `${SITE_URL}/${l}${path}`]));
+    if (locales.includes(DEFAULT_LOCALE)) {
+      languages['x-default'] = `${SITE_URL}/${DEFAULT_LOCALE}${path}`;
+    }
+    return locales.map((locale) => ({
+      url: `${SITE_URL}/${locale}${path}`,
+      alternates: { languages },
+    }));
+  });
+
   return [
     ...entries(pages, LOCALES),
     ...entries(servicePages, SERVICE_LOCALES),
     ...entries(landingPages, LANDING_LOCALES),
+    ...entries([{ path: '/blog' }], blogLocales),
+    ...postEntries,
   ];
 }

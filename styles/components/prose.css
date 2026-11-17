@@ -48,3 +48,83 @@
 .prose a {
   color: var(--text-accent);
 }
+
+/* Added for blog posts, which use a deeper structure than the legal pages
+   this file was written for: sub-headings, ordered lists and inline code. */
+
+.prose h3 {
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  margin: var(--space-8) 0 var(--space-2);
+}
+
+.prose ol {
+  margin: 0 0 var(--space-5);
+  padding-inline-start: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prose code {
+  padding: 0.15em 0.4em;
+  background: var(--accent-alpha-8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  /* Only the 500 weight of Plex Mono is shipped; 400 would synthesise. */
+  font-weight: 500;
+  font-size: 0.85em;
+  color: var(--text-primary);
+}
+
+.prose strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Post meta: author, date and reading time, under the title. */
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-8);
+}
+
+/* Post list on /blog. Rows rather than cards: a list of articles is a list. */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.post-row {
+  display: block;
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-row h2 {
+  font-size: var(--text-heading-m);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+  transition: color var(--duration-base) var(--ease-standard);
+}
+
+.post-row:hover h2,
+.post-row:focus-visible h2 {
+  color: var(--text-accent);
+}
+
+.post-row p {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-3);
+  max-inline-size: 70ch;
+}

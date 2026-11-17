@@ -42,6 +42,7 @@ export function Navbar({
   t,
   showServices = false,
   serviceLocales = [],
+  showBlog = false,
 }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -61,6 +62,7 @@ export function Navbar({
     { label: t.howItRuns, href: `/${locale}#process` },
     { label: t.pricing, href: `/${locale}/pricing` },
     { label: t.faq, href: `/${locale}#faq` },
+    ...(showBlog ? [{ label: t.blog, href: `/${locale}/blog` }] : []),
   ];
 
   // Any navigation closes the menu, including same-page anchor jumps.
