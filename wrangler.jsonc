@@ -34,16 +34,16 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // TODO(images): enable Images for this account, then uncomment.
+  // Deliberately absent. Image transformations ARE enabled on the zone now,
+  // but this binding is not how the site uses them.
   //
-  // Without this binding the OpenNext adapter answers /_next/image with the
-  // ORIGINAL file (see @opennextjs/cloudflare templates/images.js), so every
-  // case-study screenshot ships at full size and next/image's srcset buys
-  // nothing. The config is valid — `wrangler deploy --dry-run` resolves
-  // env.IMAGES — but the deploy fails until Images is turned on for the
-  // account, which is what broke Workers Builds on this branch.
+  // The binding exists to make /_next/image work, and /_next/image is a
+  // Worker route: every image would cost an invocation. next.config.mjs
+  // points next/image at /cdn-cgi/image/ instead, which Cloudflare serves
+  // ahead of the Worker, so images cost nothing and get format negotiation
+  // on top. Adding the binding back would be a regression, not an upgrade.
   //
-  // "images": { "binding": "IMAGES" },
+  // // "images": { "binding": "IMAGES" },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",

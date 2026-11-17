@@ -18,8 +18,15 @@
 
 # Stable filenames, but the bytes behind them do not change — a font file is
 # finished. Replacing one means renaming it.
+# Fonts are served by the assets layer, so next.config.mjs cannot reach them,
+# and they were turning up in Search Console as "crawled, currently not
+# indexed". They must stay crawlable — blocking them in robots.txt stops Google
+# rendering the page properly — so X-Robots-Tag is what keeps them out of the
+# index while leaving them fetchable. This replaces the Cloudflare Transform
+# Rule docs/seo.md used to ask for; delete that rule if it exists.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+  X-Robots-Tag: noindex
 
 # Source images and brand assets. NOT content-hashed: re-exporting an image
 # keeps its path, so `immutable` would strand anyone who had already cached
