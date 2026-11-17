@@ -62,6 +62,84 @@ page, so without the redirect their URL 404s for anything still linking to it.
   To publish a real one, add an `updated:` field per entry and maintain it, or
   split content so a page maps to a file of its own.
 
+## Images and caching
+
+Both are in the repo, and they are coupled: Cloudflare derives a transformed
+image's cache lifetime from the origin response, so the caching rules decide
+how often the transform pipeline has to redo work it has already done.
+
+### Images resize at the edge
+
+`next/image` uses `lib/image-loader.js`, which emits
+
+    /cdn-cgi/image/width=<w>,quality=65,format=auto/<path>
+
+Cloudflare serves that path *before* the request reaches the Worker, so an
+image costs no Worker invocation.
+
+**Quality is 65, not next/image's default 75, and that is load-bearing.**
+Measured on this site's own images, at Cloudflare's default quality the edge
+AVIF is *larger* than the WebP it replaced:
+
+| | 640w | 960w | 1280w |
+| --- | --- | --- | --- |
+| the committed WebP variants, q=80 | 28,612 | 49,922 | 70,426 |
+| `/cdn-cgi` AVIF at q=85 | 51,603 | 65,380 | 95,162 |
+| `/cdn-cgi` AVIF at q=65 | 27,529 | — | — |
+
+36 of the 39 sources are already lossy WebP, and re-encoding lossy to lossy
+spends bits without buying detail. Anyone tempted to raise the quality should
+re-measure rather than assume AVIF wins by default.
+
+So this is not a payload change — it is roughly at parity. What it buys is
+`format=auto` per request, arbitrary widths for 2x and 3x screens, 3.0 MB of
+generated files out of git, and the removal of a build step that could silently
+skip a file. That last one had already happened: the old generator missed
+`little-hafiz/overview.png`, which was absent from the manifest and shipping at
+full size with nothing to flag it.
+
+The loader leaves SVG alone, leaves remote sources alone, and is bypassed
+entirely by `next dev` and by `NEXT_PUBLIC_IMAGE_TRANSFORM=off`.
+
+One sharp edge worth knowing: those URLs contain commas, and `srcset` is a
+comma-separated list. It works — the parser reads the URL up to whitespace, so
+interior commas survive — but it is the kind of thing that looks broken in a
+diff. It was checked in a live browser, not just against the spec.
+
+### Caching
+
+Workers Assets answers every static file with
+
+    Cache-Control: public, max-age=0, must-revalidate
+
+which is the documented default, not a misconfiguration. With an ETag it means
+a conditional request per asset on every repeat visit — roughly twenty round
+trips before the page can paint, and it applied to the content-hashed Next
+chunks too, which can never go stale.
+
+`public/_headers` overrides it. Workers parses that file and it is never served
+as an asset; the build copies it to `.open-next/assets/_headers`.
+
+| Path | Policy | Why |
+| --- | --- | --- |
+| `/_next/static/*` | 1 year, `immutable` | content-hashed, the name changes with the bytes |
+| `/fonts/*` | 1 year, `immutable` | a font file is finished; replacing one means renaming it |
+| `/work`, `/assets`, `/team`, `/spline` | 30 days | **not** content-hashed — re-exporting an image keeps its path, so `immutable` would strand anyone who had already cached it |
+
+The 30-day value is also what the `/cdn-cgi/image/` derivatives inherit. Before
+this file existed the transform pipeline replied with
+
+    warning: cf-images 299 "cache-control is too restrictive"
+
+and a four-hour TTL, which would have spent the monthly allowance re-deriving
+images it had already made.
+
+`_headers` does **not** apply to responses the Worker generates, so the HTML's
+security headers are unaffected — those come from `next.config.mjs`. The
+converse is also true and is the reason both exist: `next.config.mjs` headers
+never reach static assets.
+
+---
 ---
 
 ## Not in this repo — Cloudflare dashboard
@@ -89,32 +167,41 @@ distinction to make there is:
 
 Googlebot and Bingbot must stay fully allowed.
 
-### 2. `X-Robots-Tag: noindex` on `/fonts/*`
+### 2. `X-Robots-Tag: noindex` on `/fonts/*` — done in code now
 
-`next.config.mjs` sets this for `/opengraph-image`, which is a Worker route.
-Static assets under `public/` are served by the Cloudflare assets layer
-*before* the Worker runs, so no config in this repo can add a header to them.
+This used to ask for a Rules → Transform Rules → Modify Response Header rule,
+because `next.config.mjs` cannot reach files the assets layer serves ahead of
+the Worker.
 
-Add a **Rules → Transform Rules → Modify Response Header** rule:
+`public/_headers` can, and now sets it. **If that Transform Rule was ever
+created in the dashboard, delete it** — two sources for one header is how they
+drift.
 
-- When incoming requests match: `URI Path` `starts with` `/fonts/`
-- Set static: `X-Robots-Tag` = `noindex`
+Do not block `/fonts/` in `robots.txt` instead. The files have to stay
+crawlable or Google cannot render the page properly; the header is what keeps
+them out of the index while leaving them fetchable.
 
-Do **not** block `/fonts/` in `robots.txt`. The files must stay crawlable or
-Google cannot render the page properly; the header is what keeps them out of
-the index.
+The code alternative, `run_worker_first: ["/fonts/*"]` in `wrangler.jsonc`, is
+still the wrong answer: it spends a Worker invocation on every font request to
+suppress something Search Console reports as "crawled, currently not indexed",
+which is not an error.
 
-The alternative in code is `run_worker_first: ["/fonts/*"]` in
-`wrangler.jsonc`, which costs a Worker invocation on every font request to
-suppress what Search Console reports as "crawled, currently not indexed" — not
-an error. The Transform Rule is free and does the same job.
+### 3. Image transformations must stay switched on
 
-### 3. Images
+This one is now a dependency rather than a to-do. `next/image` points at
+`/cdn-cgi/image/`, which only exists on a zone with **Images → Transformations**
+enabled. If it is ever turned off, or the monthly allowance runs out, every
+`<img>` on the site 404s.
 
-`wrangler.jsonc` still has the `IMAGES` binding commented out, so
-`/_next/image?...&w=640` returns the full-size original byte for byte and
-`next/image`'s srcset buys nothing. Enable **Images** on the Cloudflare account,
-then uncomment the binding.
+The recovery is one line and one deploy: build with
+`NEXT_PUBLIC_IMAGE_TRANSFORM=off` and the loader emits the original file from
+`public/` instead. Images get heavier; nothing breaks.
+
+Usage is a few hundred unique transforms a month against an allowance of 5,000,
+so the realistic risk is somebody switching it off, not the budget.
+
+See **Images and caching** above for why the `IMAGES` binding is deliberately
+*not* used.
 
 ---
 
@@ -123,19 +210,24 @@ then uncomment the binding.
 None of this can be automated from the repo, and the order matters: several of
 these steps are worthless if the one before them was skipped.
 
-### 0. Deploy first
+### 0. Make sure what is live is what you think is live
 
 Search Console measures the live site. Submitting a sitemap while production is
 behind `master` teaches Google a version of the site that no longer exists, and
 the sitemap is then cached for days.
 
+Cloudflare Workers Builds deploys on push to `master`, so normally this is
+already true — but it has been silently broken before (a lockfile that `npm ci`
+rejected, which left hand-run `npm run deploy` as the only path that worked).
+Confirm rather than assume:
+
 ```bash
-npm run deploy
 curl -s https://thodz.com/sitemap.xml | grep -c '<loc>'
 ```
 
 The URL count is the cheap check that the deploy carried what you think it did:
-204 before the blog shipped, 208 after.
+204 before the blog shipped, 208 after. `npm run deploy` still works if CI is
+wedged.
 
 ### 1. One Domain property, not a URL-prefix one
 
