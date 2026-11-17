@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CONTACT, SOCIALS } from '@/lib/config';
 
-export function Footer({ locale, t, showServices = false }) {
+export function Footer({ locale, t, showServices = false, landingLinks = [] }) {
   const company = [
     { label: t.nav.problems, href: `/${locale}#problems` },
     ...(showServices ? [{ label: t.nav.services, href: `/${locale}/services` }] : []),
@@ -11,6 +11,7 @@ export function Footer({ locale, t, showServices = false }) {
     { label: t.nav.faq, href: `/${locale}#faq` },
     { label: t.nav.about, href: `/${locale}/about` },
     { label: t.footer.contact, href: `/${locale}/contact` },
+    ...landingLinks,
   ];
 
   const contact = [

@@ -97,6 +97,65 @@
   color: var(--text-accent);
 }
 
+/* Fact list on the landing pages: the commercial answers a foreign buyer
+   needs before anything else — hours, languages, currency, who owns the code.
+   A definition list because that is what it is, laid out as rows so the
+   answer sits beside its label on a wide screen and under it on a phone. */
+
+.fact-list {
+  margin: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fact-row {
+  display: grid;
+  grid-template-columns: minmax(0, 15ch) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-6);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fact-row dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--text-tertiary);
+}
+
+.fact-row dd {
+  margin: 0;
+  font-size: var(--text-body-s);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .fact-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Landing page FAQ. The homepage FAQ is an accordion; these stay open,
+   because a buyer reading this page is reading all of them. */
+
+.landing-faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.landing-faq-item h3 {
+  font-size: var(--text-heading-s);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+}
+
+.landing-faq-item p {
+  font-size: var(--text-body-s);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 /* Proof list: the case studies that back a service claim. Deliberately plain
    rows rather than cards, so they read as citations under the argument and
    not as a second gallery competing with /work. */
