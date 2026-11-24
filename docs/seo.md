@@ -103,6 +103,31 @@ page, so without the redirect their URL 404s for anything still linking to it.
   To publish a real one, add an `updated:` field per entry and maintain it, or
   split content so a page maps to a file of its own.
 
+## IndexNow
+
+`scripts/indexnow.mjs` submits the live sitemap's URLs to IndexNow, which
+Bing, Yandex, Seznam, Naver and Yep read (Google does not take part). The key
+is public by design and served at `/ee85c3817876adbf105445fb5cfcde04.txt`,
+`noindex` via `public/_headers`.
+
+`.github/workflows/indexnow.yml` runs it after every push to `master` that
+touches a page-rendering path. Deploys are Cloudflare's, not GitHub's, so the
+job first waits for the "Workers Builds" check run on that commit to pass;
+submitting before the new version is live would point engines at the old
+pages. The script also refuses to submit until the key file answers.
+
+It submits every sitemap URL rather than only the changed ones. A page's text
+spans `lib/content.js`, a dictionary and an overlay, so mapping a diff to URLs
+would be guesswork, and a wrong guess silently drops a changed page.
+
+```bash
+node scripts/indexnow.mjs --dry-run      # what would be sent
+node scripts/indexnow.mjs /en/work /fr   # specific paths only
+```
+
+To rotate the key: rename the file, update `KEY` in the script and the path in
+`public/_headers`, in one commit.
+
 ## Images and caching
 
 Both are in the repo, and they are coupled: Cloudflare derives a transformed
