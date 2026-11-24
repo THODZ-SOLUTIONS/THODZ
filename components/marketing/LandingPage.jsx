@@ -3,9 +3,8 @@ import { notFound } from 'next/navigation';
 import { Icon } from '@/components/core/Icon';
 import { JsonLd } from '@/components/core/JsonLd';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
+import { buildMetadata } from '@/lib/seo';
 import { LANDING_LOCALES } from '@/lib/landing';
-import { localeAlternatesIn } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 // Both landing pages render through here. They differ only in content, so a
@@ -16,17 +15,13 @@ export async function landingMetadata(slug, params) {
   const { locale } = await params;
   const page = getContent(locale).LANDING_PAGES.find((p) => p.slug === slug);
   if (!page) return {};
-  return {
+  return buildMetadata({
+    locale,
+    path: `/${slug}`,
     title: page.metaTitle,
     description: page.metaDescription,
-    alternates: localeAlternatesIn(LANDING_LOCALES, `/${slug}`, locale),
-    ...pageOpenGraph({
-      locale,
-      path: `/${slug}`,
-      title: `${page.metaTitle} · THODZ SOLUTIONS`,
-      description: page.metaDescription,
-    }),
-  };
+    locales: LANDING_LOCALES,
+  });
 }
 
 export async function LandingPage({ slug, params }) {

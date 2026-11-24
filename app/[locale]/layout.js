@@ -5,15 +5,12 @@ import { Footer } from '@/components/navigation/Footer';
 import { JsonLd } from '@/components/core/JsonLd';
 import { SITE_URL, CONTACT, SOCIALS, ADDRESS } from '@/lib/config';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
-import { LOCALES, OG_LOCALES, localeDir, localeAlternates } from '@/lib/i18n/config';
+import { LOCALES, localeDir } from '@/lib/i18n/config';
+import { buildMetadata, ORG_ID } from '@/lib/seo';
 import { getDictionary, getContent } from '@/lib/i18n';
-import { SERVICE_LOCALES } from '@/lib/services';
-import { LANDING_LOCALES } from '@/lib/landing';
-import { getBlogLocales } from '@/lib/blog';
-
-// The generated share card (app/opengraph-image.js), referenced by path so
-// metadataBase resolves it to an absolute URL.
-const OG_IMAGE = '/opengraph-image';
+import { SERVICE_LOCALES, SERVICE_PAGES } from '@/lib/services';
+import { LANDING_LOCALES, LANDING_PAGES } from '@/lib/landing';
+import { getBlogLocales, getPostSlugs, getPublishedPostLocales } from '@/lib/blog';
 
 // Fonts are vendored under public/fonts and declared in
 // styles/tokens/font-faces.css — no next/font, so builds never depend on
@@ -43,53 +40,33 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale);
+  // These are the homepage's tags, and the defaults any page without its own
+  // generateMetadata would inherit. Every real page overrides them through
+  // the same helper, so the shape is identical everywhere.
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: t.meta.title, template: t.meta.template },
-    description: t.meta.description,
-    applicationName: 'THODZ SOLUTIONS',
-    keywords: [
-      'software development agency Algeria',
-      'full-stack engineering studio',
-      'web development Algeria',
-      'mobile app development Algeria',
-      'DevOps consulting',
-      'cybersecurity consulting',
-      'AI ML development',
-      'agence de développement web Algérie',
-      'تطوير مواقع الجزائر',
-    ],
+    applicationName: 'THODZ',
     authors: [{ name: 'THODZ SOLUTIONS', url: SITE_URL }],
     creator: 'THODZ SOLUTIONS',
     publisher: 'THODZ SOLUTIONS',
-    alternates: localeAlternates('', locale),
     robots: {
       index: true,
       follow: true,
       googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
     },
-    openGraph: {
+    ...buildMetadata({
+      locale,
+      path: '',
+      // "THODZ | {value proposition}": the brand leads on the homepage
+      // because "thodz" is the query this page has to win outright.
       title: t.meta.title,
-      description: t.meta.ogDescription,
-      url: `${SITE_URL}/${locale}`,
-      siteName: 'THODZ SOLUTIONS',
-      locale: OG_LOCALES[locale],
-      // Every other locale is an alternate of this card, which is what tells
-      // a crawler the three URLs are translations rather than duplicates.
-      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALES[l]),
-      type: 'website',
-      // Declared explicitly: app/opengraph-image.js sits above the [locale]
-      // segment, and naming openGraph here means the file convention no
-      // longer injects itself. Without this every share outside a case study
-      // posts as a bare text link.
-      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: t.meta.title }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t.meta.title,
-      description: t.meta.ogDescription,
-      images: [OG_IMAGE],
-    },
+      absolute: true,
+      description: t.meta.description,
+      shareDescription: t.meta.ogDescription,
+    }),
+    // Pages render their own title through buildMetadata (absolute), so this
+    // template only catches a page that forgot to.
+    title: { default: t.meta.title, template: t.meta.template },
   };
 }
 
@@ -113,6 +90,15 @@ export default async function RootLayout({ children, params }) {
     ? getContent(locale).LANDING_PAGES.map((p) => ({
         label: p.title,
         href: `/${locale}/${p.slug}`,
+      }))
+    : [];
+
+  // The service pages are the commercial pages; linking each one from every
+  // page in its locale is what tells a crawler they matter.
+  const serviceLinks = showServices
+    ? getContent(locale).SERVICE_PAGES.map((s) => ({
+        label: s.title,
+        href: `/${locale}/services/${s.slug}`,
       }))
     : [];
 
@@ -148,7 +134,7 @@ export default async function RootLayout({ children, params }) {
           locale={locale}
           t={t.nav}
           showServices={showServices}
-          serviceLocales={SERVICE_LOCALES}
+          pageLocales={pageLocales()}
           showBlog={showBlog}
         />
         <main>{children}</main>
@@ -157,11 +143,24 @@ export default async function RootLayout({ children, params }) {
           t={t}
           showServices={showServices}
           landingLinks={landingLinks}
+          serviceLinks={serviceLinks}
           showBlog={showBlog}
         />
       </body>
     </html>
   );
+}
+
+// Pages that exist in only some locales, keyed by their path without the
+// locale prefix. The language switcher offers only these locales on these
+// pages; everywhere else it offers all of them. Built here, on the server,
+// so lib/services.js and the blog's filesystem reads never reach the client.
+function pageLocales() {
+  const map = { '/services': SERVICE_LOCALES, '/blog': getBlogLocales() };
+  for (const s of SERVICE_PAGES) map[`/services/${s.slug}`] = SERVICE_LOCALES;
+  for (const p of LANDING_PAGES) map[`/${p.slug}`] = LANDING_LOCALES;
+  for (const slug of getPostSlugs()) map[`/blog/${slug}`] = getPublishedPostLocales(slug);
+  return map;
 }
 
 function organizationSchema(locale) {
@@ -170,8 +169,11 @@ function organizationSchema(locale) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
-    '@id': `${SITE_URL}/#organization`,
+    '@id': ORG_ID,
     name: 'THODZ SOLUTIONS',
+    // What people actually type. Without it Google has only the legal name to
+    // match a brand query against.
+    alternateName: ['THODZ', 'Thodz Solutions'],
     url: SITE_URL,
     description: t.meta.orgDescription,
     logo: `${SITE_URL}/assets/logo-full.svg`,

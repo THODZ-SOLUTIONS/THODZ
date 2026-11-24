@@ -1,16 +1,37 @@
 # SEO: what lives in code, and what does not
 
-Most of the site's SEO is in the repo and guarded by `npm run check:seo`.
+Most of the site's SEO is in the repo and guarded by three scripts.
+Every page's `<head>` comes from one helper, `buildMetadata()` in
+`lib/seo.js`: title, description, canonical, hreflang and the share card are
+built there from the set of locales the page actually exists in, and nowhere
+else.
 Some of it cannot be: a few requests never reach the Worker, and measurement
 happens somewhere else entirely. Those are the two sections at the bottom, one
 for the Cloudflare dashboard and one for Google Search Console.
 
-## The guard
+## The guards
 
 ```bash
-npm run build:check      # next build, then the SEO check
-npm run check:seo        # the check alone, against the last build
+npm run check:i18n       # translation completeness; runs before every build
+npm run build:check      # i18n check, next build, then the file-level SEO check
+npm run check:seo        # the file-level check alone, against the last build
+npm run seo:crawl        # the HTTP crawl, against a running `next start`
+npm run seo:crawl -- https://thodz.com   # the same crawl against production
 ```
+
+`check:i18n` is wired into `open-next.config.ts` (`buildCommand`), so
+`npm run build` — and with it the Cloudflare deploy — fails on a missing
+translation instead of shipping English under a translated URL. Anything
+still in English on purpose, or withheld from a locale until it has native
+copy, is listed in `SEO_TRANSLATION_TODO.md` at the repo root.
+
+`seo:crawl` (`scripts/seo-check.mjs`) is the end-to-end version. Starting from
+`/sitemap.xml`, with redirects not followed, it checks every URL for status
+200, a self-referencing canonical, an hreflang set that matches the sitemap
+and is reciprocal with every alternate, `x-default`, `<html lang>`/`dir`, a
+title and description unique across the whole site, JSON-LD that parses and
+carries the `@type`s its template must have, every internal link landing on a
+direct 200, and the redirects below staying single-hop.
 
 `scripts/check-seo.mjs` reads the **built HTML** — not the source — because
 what matters is the tag Google receives after templates, overlays and
@@ -36,7 +57,12 @@ publish, such as `/de/services` — are skipped.
 | `www.thodz.com/*` | `thodz.com/*` | 308 |
 | `/about`, `/work/*`, any pre-i18n path | `/en/...` | 308 |
 | `/` | `/{detected locale}` | **307** |
+| `/EN`, `/Fr/work`, any mis-cased locale | the lowercase URL | 308 |
 | `/{locale}/work/{retired slug}` | `/{locale}/work` | 308 |
+
+Locale detection happens on the bare `/` only. Every `/{locale}/...` URL is
+served as-is to any client, including one with no `Accept-Language` and no
+cookie — which is how Googlebot crawls — and `seo:crawl` asserts it.
 
 The home page stays **temporary** on purpose: the same URL answers differently
 per visitor, and a permanent redirect would be cached and lock a browser into
@@ -53,7 +79,10 @@ page, so without the redirect their URL 404s for anything still linking to it.
 `app/sitemap.js` emits `<loc>` and `<xhtml:link>` alternates, and nothing else.
 
 - **No `priority` / `changefreq`** — Google ignores both.
-- **No `lastmod`** — deliberately. It used to be the build timestamp, so all
+- **`lastmod` on blog posts and the blog index only**, from each post's
+  `updated` (or `date`) frontmatter: the one place a true per-page date
+  exists. Everything else is left without, deliberately. It used to be the
+  build timestamp, so all
   198 URLs claimed to change whenever anything did. Deriving it from git is no
   better: every case study's text lives in `lib/content.js`, so one edit moves
   the date on all fourteen. A date that is wrong for thirteen pages teaches

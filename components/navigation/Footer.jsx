@@ -7,6 +7,9 @@ export function Footer({
   t,
   showServices = false,
   landingLinks = [],
+  // One link per service page, in this locale. Empty where the locale does
+  // not publish them, so the column simply is not rendered.
+  serviceLinks = [],
   showBlog = false,
 }) {
   const company = [
@@ -55,6 +58,7 @@ export function Footer({
 
         <div className="footer-cols">
           <FooterCol title={t.footer.company} links={company} />
+          {serviceLinks.length > 0 && <FooterCol title={t.nav.services} links={serviceLinks} />}
           <FooterCol title={t.footer.contact} links={contact} />
           {socials.length > 0 && <FooterCol title={t.footer.elsewhere} links={socials} />}
         </div>

@@ -3,9 +3,8 @@ import { notFound } from 'next/navigation';
 import { Icon } from '@/components/core/Icon';
 import { JsonLd } from '@/components/core/JsonLd';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema, ORG_ID } from '@/lib/seo';
 import { SERVICE_PAGES, SERVICE_LOCALES } from '@/lib/services';
-import { localeAlternatesIn } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 // Returns complete {locale, slug} pairs rather than slugs alone, so the
@@ -23,17 +22,13 @@ export async function generateMetadata({ params }) {
   const { locale, slug } = await params;
   const service = getContent(locale).SERVICE_PAGES.find((s) => s.slug === slug);
   if (!service) return {};
-  return {
+  return buildMetadata({
+    locale,
+    path: `/services/${slug}`,
     title: service.metaTitle,
     description: service.metaDescription,
-    alternates: localeAlternatesIn(SERVICE_LOCALES, `/services/${slug}`, locale),
-    ...pageOpenGraph({
-      locale,
-      path: `/services/${slug}`,
-      title: `${service.metaTitle} · THODZ SOLUTIONS`,
-      description: service.metaDescription,
-    }),
-  };
+    locales: SERVICE_LOCALES,
+  });
 }
 
 export default async function ServicePage({ params }) {
@@ -67,26 +62,16 @@ export default async function ServicePage({ params }) {
           url: `${SITE_URL}/${locale}/services/${slug}`,
           // Points at the ProfessionalService node the layout already
           // publishes, rather than restating the organisation on every page.
-          provider: { '@id': `${SITE_URL}/#organization` },
+          provider: { '@id': ORG_ID },
           areaServed: ['DZ', 'FR', 'EU', 'MENA', 'Worldwide'],
         }}
       />
 
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: t.breadcrumbHome, item: `${SITE_URL}/${locale}` },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: t.breadcrumbServices,
-              item: `${SITE_URL}/${locale}/services`,
-            },
-            { '@type': 'ListItem', position: 3, name: service.title },
-          ],
-        }}
+        data={breadcrumbSchema(locale, t.breadcrumbHome, [
+          { name: t.breadcrumbServices, path: '/services' },
+          { name: service.title, path: `/services/${slug}` },
+        ])}
       />
 
       <div className="page-head bg-grid">

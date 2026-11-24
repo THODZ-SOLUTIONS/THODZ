@@ -90,6 +90,16 @@ export function middleware(request) {
     return NextResponse.redirect(`${SITE_URL}${pathname}${search}`, 308);
   }
 
+  // A mis-cased locale (/EN, /Fr/work) is the right page under the wrong
+  // URL. Without this it fell through to the unprefixed branch below and
+  // became /en/EN, a redirect into a 404.
+  const first = pathname.split('/')[1] || '';
+  if (first !== first.toLowerCase() && LOCALES.includes(first.toLowerCase())) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${first.toLowerCase()}${pathname.slice(first.length + 1)}`;
+    return NextResponse.redirect(url, 308);
+  }
+
   const hasLocale = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
 
   const retired = RETIRED_CASE_STUDIES.find(

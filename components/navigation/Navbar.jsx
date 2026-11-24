@@ -41,7 +41,7 @@ export function Navbar({
   locale,
   t,
   showServices = false,
-  serviceLocales = [],
+  pageLocales = {},
   showBlog = false,
 }) {
   const [open, setOpen] = useState(false);
@@ -101,7 +101,7 @@ export function Navbar({
             </Link>
           ))}
           <LocaleSwitcher
-            serviceLocales={serviceLocales}
+            pageLocales={pageLocales}
             locale={locale}
             label={t.languageLabel}
             autoLabel={t.languageAuto}
@@ -142,7 +142,7 @@ export function Navbar({
           ))}
           <div className="nav-mobile-controls">
             <LocaleSwitcher
-              serviceLocales={serviceLocales}
+              pageLocales={pageLocales}
               locale={locale}
               label={t.languageLabel}
               autoLabel={t.languageAuto}
