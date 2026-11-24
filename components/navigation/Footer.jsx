@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { CONTACT, SOCIALS } from '@/lib/config';
+import { CONTACT, SOCIALS, PRODUCTS } from '@/lib/config';
 
 export function Footer({
   locale,
@@ -30,7 +30,13 @@ export function Footer({
     { label: 'WhatsApp', href: `https://wa.me/${CONTACT.whatsapp}` },
   ];
 
-  const socials = SOCIALS.filter((s) => s.href);
+  // Products first, then the studio's profiles. rel="me" on the profiles is
+  // the identity claim: "this account is us". Mastodon verifies the link with
+  // it, and it is the same statement the schema.org sameAs makes.
+  const elsewhere = [
+    ...PRODUCTS.map((p) => ({ label: p.name, href: p.url })),
+    ...SOCIALS.filter((s) => s.href).map((s) => ({ ...s, rel: 'me noreferrer' })),
+  ];
 
   return (
     <footer className="footer">
@@ -60,7 +66,9 @@ export function Footer({
           <FooterCol title={t.footer.company} links={company} />
           {serviceLinks.length > 0 && <FooterCol title={t.nav.services} links={serviceLinks} />}
           <FooterCol title={t.footer.contact} links={contact} />
-          {socials.length > 0 && <FooterCol title={t.footer.elsewhere} links={socials} />}
+          {elsewhere.length > 0 && (
+            <FooterCol title={t.footer.elsewhere} links={elsewhere} grid />
+          )}
         </div>
       </div>
 
@@ -82,15 +90,15 @@ export function Footer({
   );
 }
 
-function FooterCol({ title, links }) {
+function FooterCol({ title, links, grid = false }) {
   return (
     <div>
       <div className="footer-col-title">{title}</div>
-      <div className="footer-col-links">
+      <div className={`footer-col-links${grid ? ' footer-col-links--grid' : ''}`}>
         {links.map((l) => {
           const external = l.href.startsWith('http');
           return external ? (
-            <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="footer-link">
+            <a key={l.label} href={l.href} target="_blank" rel={l.rel || 'noreferrer'} className="footer-link">
               {l.label}
             </a>
           ) : (

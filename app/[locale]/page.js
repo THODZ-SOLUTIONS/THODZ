@@ -12,7 +12,7 @@ import { PricingPicker } from '@/components/home/PricingPicker';
 import { Faq } from '@/components/marketing/Faq';
 import { Testimonial } from '@/components/marketing/Testimonial';
 import { ContactForm } from '@/components/forms/ContactForm';
-import { CONTACT, SITE_URL, visible } from '@/lib/config';
+import { CONTACT, PRODUCTS, SITE_URL, visible } from '@/lib/config';
 import { FEATURED_CASE_STUDIES } from '@/lib/content';
 import { getDictionary, getContent } from '@/lib/i18n';
 
@@ -45,6 +45,24 @@ export default async function HomePage({ params }) {
           publisher: { '@id': ORG_ID },
         }}
       />
+      {/* Products the studio publishes, tied to the organisation. A search for
+          "thodz" already finds THODZ Drop; this says who makes it. */}
+      {PRODUCTS.map((p) => (
+        <JsonLd
+          key={p.url}
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: p.name,
+            url: p.url,
+            description: p.description,
+            applicationCategory: p.category,
+            operatingSystem: p.os,
+            sameAs: p.listings,
+            publisher: { '@id': ORG_ID },
+          }}
+        />
+      ))}
       {/* The FAQ is answered in full on this page, so the markup belongs
           here too, not only on /pricing. */}
       <JsonLd

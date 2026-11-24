@@ -238,6 +238,43 @@ for (const l of LOCALES) {
   if (res.status !== 200) fail(`/${l}`, `returned ${res.status} to a client with no Accept-Language`);
 }
 
+// --- 5. brand signals -----------------------------------------------------------
+//
+// What Google shows next to the result (favicon, site name) and what it
+// builds an entity from (organisation logo, sameAs). None of it is per-page,
+// so it is checked once, on the English homepage.
+
+{
+  const home = await get(`${SITE}/en`);
+  const icons = [...home.body.matchAll(/<link rel="(?:icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)].map(
+    (m) => decode(m[1])
+  );
+  for (const href of ['/favicon.ico', ...icons]) {
+    const res = await fetch(new URL(href, BASE), { redirect: 'manual' });
+    const type = res.headers.get('content-type') || '';
+    if (res.status !== 200 || !type.startsWith('image/')) {
+      fail(href, `icon returned ${res.status} ${type}`);
+    }
+  }
+  if (!icons.some((h) => h.includes('apple-icon'))) fail('/en', 'no apple-touch-icon link');
+
+  const org = parseHead(home.body)
+    .jsonld.map((raw) => JSON.parse(raw))
+    .find((d) => d['@type'] === 'ProfessionalService');
+  if (!org) fail('/en', 'no organisation JSON-LD');
+  else {
+    const logo = typeof org.logo === 'string' ? org.logo : org.logo?.url;
+    const res = logo ? await fetch(toBase(logo), { redirect: 'manual' }) : null;
+    if (!res || res.status !== 200 || !/^image\/(png|jpeg|webp)/.test(res.headers.get('content-type') || '')) {
+      fail('/en', `organisation logo ${logo} is not a reachable raster image`);
+    }
+    if (!Array.isArray(org.sameAs) || !org.sameAs.length) fail('/en', 'organisation has no sameAs');
+    for (const url of org.sameAs || []) {
+      if (!/^https:\/\//.test(url)) fail('/en', `sameAs entry is not an https URL: ${url}`);
+    }
+  }
+}
+
 // --- report -------------------------------------------------------------------
 
 const byLocale = Object.fromEntries(LOCALES.map((l) => [l, 0]));
@@ -248,6 +285,7 @@ console.log(`  sitemap URLs     ${sitemap.size}`);
 console.log(`  pages fetched    ${pages.size}  (${Object.entries(byLocale).map(([l, n]) => `${l} ${n}`).join(', ')})`);
 console.log(`  internal links   ${linkTargets.size} distinct, ${linkCount} outside the sitemap checked`);
 console.log(`  redirects        ${REDIRECTS.length} single-hop cases, ${LOCALES.length} locale roots without Accept-Language`);
+console.log('  brand            favicon, apple-touch-icon, organisation logo, sameAs');
 
 if (problems.length) {
   console.error(`\n${problems.length} problem(s):`);
