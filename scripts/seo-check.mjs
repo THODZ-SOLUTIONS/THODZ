@@ -257,6 +257,16 @@ async function wwwRedirect(path) {
 const WWW_PATHS = ['/', '/en', '/fr/about', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
 for (const path of WWW_PATHS) {
   const { status, location } = await wwwRedirect(path);
+  // One known exception. Cloudflare's managed robots.txt (AI Crawl Control)
+  // answers /robots.txt on every proxied hostname before any redirect rule
+  // runs, so www serves Cloudflare's AI-crawler block with a 200. That is
+  // acceptable only while it is purely that block: no Sitemap line and none
+  // of app/robots.js's rules, i.e. nothing that presents www as a live site.
+  if (path === '/robots.txt' && status === 200 && BASE === SITE) {
+    const body = await (await fetch('https://www.thodz.com/robots.txt')).text();
+    const tail = body.split('# END Cloudflare Managed Content')[1] ?? body;
+    if (/cloudflare managed content/i.test(body) && !/sitemap:/i.test(tail) && !tail.trim()) continue;
+  }
   if (![301, 308].includes(status) || location !== `${SITE}${path}`) {
     fail(`www${path}`, `expected a permanent redirect to ${SITE}${path}, got ${status} -> ${location}`);
   }

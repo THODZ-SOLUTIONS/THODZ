@@ -54,7 +54,8 @@ publish, such as `/de/services` — are skipped.
 
 | From | To | Status |
 | --- | --- | --- |
-| `www.thodz.com/*` | `thodz.com/*` | 308 |
+| `http(s)://www.thodz.com/*` | `https://thodz.com/*` | **301**, Cloudflare Redirect Rule "www to apex" |
+| `www.thodz.com/*` reaching the Worker | `thodz.com/*` | 308, `middleware.js` (fallback) |
 | `/about`, `/work/*`, any pre-i18n path | `/en/...` | 308 |
 | `/` | `/{detected locale}` | **307** |
 | `/EN`, `/Fr/work`, any mis-cased locale | the lowercase URL | 308 |
@@ -63,6 +64,17 @@ publish, such as `/de/services` — are skipped.
 Locale detection happens on the bare `/` only. Every `/{locale}/...` URL is
 served as-is to any client, including one with no `Accept-Language` and no
 cookie — which is how Googlebot crawls — and `seo:crawl` asserts it.
+
+The www redirect lives in two places on purpose. The Cloudflare Redirect Rule
+("www to apex", Rules → Redirect Rules) runs first, for every path and both
+schemes, in one hop; before it existed `http://www` took two hops and static
+files on www never reached the Worker at all. `middleware.js` keeps its own
+www check as the fallback if the rule is ever disabled.
+
+`www.thodz.com/robots.txt` is the one path the rule cannot redirect: the
+Cloudflare-managed robots.txt answers it first, with only Cloudflare's AI
+crawler block. `seo:crawl` accepts that exact case and fails on anything
+more, such as a `Sitemap:` line appearing on www.
 
 The home page stays **temporary** on purpose: the same URL answers differently
 per visitor, and a permanent redirect would be cached and lock a browser into
