@@ -1,0 +1,73 @@
+# Pings IndexNow (Bing, Yandex, Seznam, Naver, Yep) after a deploy, so they
+# recrawl changed pages now instead of on their own schedule.
+#
+# Deploys are done by Cloudflare Workers Builds, not by this repository, so
+# this job waits for Cloudflare's check run on the pushed commit to pass
+# before submitting. Submitting earlier would point engines at the old pages.
+
+name: IndexNow
+
+on:
+  push:
+    branches: [master]
+    # Only changes that can alter a rendered page. Docs, scripts and the
+    # workflow itself do not.
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'content/**'
+      - 'public/**'
+      - 'middleware.js'
+      - 'next.config.mjs'
+  # Manual run, e.g. to resubmit everything.
+  workflow_dispatch:
+
+permissions:
+  checks: read
+  contents: read
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+
+      - name: Wait for the Cloudflare deploy of this commit
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            state=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/check-runs" \
+              --jq '[.check_runs[] | select(.name | startswith("Workers Builds"))][0] | "\(.status) \(.conclusion)"')
+            echo "attempt $i: ${state:-no check run yet}"
+            case "$state" in
+              "completed success") exit 0 ;;
+              completed*) echo "Cloudflare build did not succeed; not submitting."; exit 1 ;;
+            esac
+            sleep 20
+          done
+          echo "Timed out waiting for the Cloudflare build."
+          exit 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The build finishing and the new version answering are a few seconds
+      # apart; the script checks the key file and fails if it is not live yet.
+      - name: Submit
+        run: |
+          for i in 1 2 3 4 5; do
+            node scripts/indexnow.mjs && exit 0
+            sleep 30
+          done
+          exit 1

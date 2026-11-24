@@ -49,3 +49,9 @@
 
 /spline/*
   Cache-Control: public, max-age=2592000
+
+# The IndexNow key (scripts/indexnow.mjs). It has to be publicly fetchable so
+# search engines can confirm the key belongs to this host, but it is not a
+# page and must not show up in an index.
+/ee85c3817876adbf105445fb5cfcde04.txt
+  X-Robots-Tag: noindex
