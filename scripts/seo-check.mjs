@@ -231,6 +231,37 @@ for (const [from, to] of REDIRECTS) {
   if (next.status !== 200) fail(from, `redirect chain: ${target} returned ${next.status}`);
 }
 
+// The www host must redirect everything to the apex in one hop, including
+// the files a crawler reads first. robots.txt and sitemap.xml once answered
+// 200 on www (the middleware skipped dotted paths), and Search Console then
+// chose www URLs as canonical over the apex ones.
+//
+// Against production the www host is fetched directly. Locally there is no
+// www, so the Host header is set by hand: fetch() drops it, node:http keeps it.
+async function wwwRedirect(path) {
+  if (BASE === SITE) {
+    const res = await fetch(`https://www.thodz.com${path}`, { redirect: 'manual' });
+    return { status: res.status, location: res.headers.get('location') };
+  }
+  const { request } = await import('node:http');
+  const { hostname, port } = new URL(BASE);
+  return new Promise((resolve, reject) => {
+    request({ hostname, port, path, headers: { host: 'www.thodz.com' } }, (res) => {
+      res.resume();
+      resolve({ status: res.statusCode, location: res.headers.location });
+    })
+      .on('error', reject)
+      .end();
+  });
+}
+const WWW_PATHS = ['/', '/en', '/fr/about', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+for (const path of WWW_PATHS) {
+  const { status, location } = await wwwRedirect(path);
+  if (![301, 308].includes(status) || location !== `${SITE}${path}`) {
+    fail(`www${path}`, `expected a permanent redirect to ${SITE}${path}, got ${status} -> ${location}`);
+  }
+}
+
 // Locale URLs are reachable directly by a crawler with no Accept-Language and
 // no cookie: Googlebot crawls mostly from the US and must see /de as /de.
 for (const l of LOCALES) {
@@ -284,7 +315,7 @@ console.log(`seo-check against ${BASE}`);
 console.log(`  sitemap URLs     ${sitemap.size}`);
 console.log(`  pages fetched    ${pages.size}  (${Object.entries(byLocale).map(([l, n]) => `${l} ${n}`).join(', ')})`);
 console.log(`  internal links   ${linkTargets.size} distinct, ${linkCount} outside the sitemap checked`);
-console.log(`  redirects        ${REDIRECTS.length} single-hop cases, ${LOCALES.length} locale roots without Accept-Language`);
+console.log(`  redirects        ${REDIRECTS.length} single-hop cases, ${WWW_PATHS.length} www paths, ${LOCALES.length} locale roots without Accept-Language`);
 console.log('  brand            favicon, apple-touch-icon, organisation logo, sameAs');
 
 if (problems.length) {

@@ -90,6 +90,11 @@ export function middleware(request) {
     return NextResponse.redirect(`${SITE_URL}${pathname}${search}`, 308);
   }
 
+  // Files (sitemap.xml, robots.txt, the favicon) reach this point only so the
+  // www redirect above applies to them. On the canonical host they are served
+  // as-is, never sent through the locale logic below.
+  if (FILE_ROUTES.includes(pathname)) return;
+
   // A mis-cased locale (/EN, /Fr/work) is the right page under the wrong
   // URL. Without this it fell through to the unprefixed branch below and
   // became /en/EN, a redirect into a 404.
@@ -127,8 +132,21 @@ export function middleware(request) {
   return NextResponse.redirect(url, 308);
 }
 
+// Generated files whose www copy must redirect too. The matcher below skips
+// every path with a dot, so until these were listed www.thodz.com/robots.txt
+// and /sitemap.xml answered 200: the two files a crawler reads first were
+// telling it www was a live site, and Search Console picked www URLs as
+// canonical for pages crawled in the days around the redirect's launch.
+const FILE_ROUTES = ['/robots.txt', '/sitemap.xml', '/favicon.ico'];
+
 export const config = {
   // Skip API routes, Next internals, extensionless metadata routes, and any
-  // request for an actual file (public/ assets all carry an extension).
-  matcher: ['/((?!api|_next|opengraph-image|twitter-image|.*\\..*).*)'],
+  // request for an actual file (public/ assets all carry an extension) --
+  // except the generated files above, which need the www redirect.
+  matcher: [
+    '/((?!api|_next|opengraph-image|twitter-image|.*\\..*).*)',
+    '/robots.txt',
+    '/sitemap.xml',
+    '/favicon.ico',
+  ],
 };
