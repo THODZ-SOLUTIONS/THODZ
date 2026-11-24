@@ -231,22 +231,24 @@ for (const [from, to] of REDIRECTS) {
   if (next.status !== 200) fail(from, `redirect chain: ${target} returned ${next.status}`);
 }
 
-// The www host must redirect everything to the apex in one hop, including
-// the files a crawler reads first. robots.txt and sitemap.xml once answered
-// 200 on www (the middleware skipped dotted paths), and Search Console then
-// chose www URLs as canonical over the apex ones.
+// Alias hosts must redirect everything to the apex in one hop: www, and the
+// apex on the extra ports Cloudflare proxies by default (Bing had found
+// thodz.com:2083 serving the full site). Includes the files a crawler reads
+// first: robots.txt and sitemap.xml once answered 200 on www (the middleware
+// skipped dotted paths), and Search Console then chose www URLs as canonical.
 //
-// Against production the www host is fetched directly. Locally there is no
-// www, so the Host header is set by hand: fetch() drops it, node:http keeps it.
-async function wwwRedirect(path) {
+// Against production the alias is fetched directly. Locally there is no such
+// host, so the Host header is set by hand: fetch() drops it, node:http keeps it.
+const ALIASES = ['www.thodz.com', 'thodz.com:2083', 'thodz.com:8443'];
+async function aliasRedirect(alias, path) {
   if (BASE === SITE) {
-    const res = await fetch(`https://www.thodz.com${path}`, { redirect: 'manual' });
+    const res = await fetch(`https://${alias}${path}`, { redirect: 'manual' });
     return { status: res.status, location: res.headers.get('location') };
   }
   const { request } = await import('node:http');
   const { hostname, port } = new URL(BASE);
   return new Promise((resolve, reject) => {
-    request({ hostname, port, path, headers: { host: 'www.thodz.com' } }, (res) => {
+    request({ hostname, port, path, headers: { host: alias } }, (res) => {
       res.resume();
       resolve({ status: res.statusCode, location: res.headers.location });
     })
@@ -254,21 +256,23 @@ async function wwwRedirect(path) {
       .end();
   });
 }
-const WWW_PATHS = ['/', '/en', '/fr/about', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
-for (const path of WWW_PATHS) {
-  const { status, location } = await wwwRedirect(path);
-  // One known exception. Cloudflare's managed robots.txt (AI Crawl Control)
-  // answers /robots.txt on every proxied hostname before any redirect rule
-  // runs, so www serves Cloudflare's AI-crawler block with a 200. That is
-  // acceptable only while it is purely that block: no Sitemap line and none
-  // of app/robots.js's rules, i.e. nothing that presents www as a live site.
-  if (path === '/robots.txt' && status === 200 && BASE === SITE) {
-    const body = await (await fetch('https://www.thodz.com/robots.txt')).text();
-    const tail = body.split('# END Cloudflare Managed Content')[1] ?? body;
-    if (/cloudflare managed content/i.test(body) && !/sitemap:/i.test(tail) && !tail.trim()) continue;
-  }
-  if (![301, 308].includes(status) || location !== `${SITE}${path}`) {
-    fail(`www${path}`, `expected a permanent redirect to ${SITE}${path}, got ${status} -> ${location}`);
+const ALIAS_PATHS = ['/', '/en', '/fr/about', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+for (const alias of ALIASES) {
+  for (const path of ALIAS_PATHS) {
+    const { status, location } = await aliasRedirect(alias, path);
+    // One known exception. Cloudflare's managed robots.txt (AI Crawl Control)
+    // answers /robots.txt on every proxied hostname and port before any
+    // redirect rule runs, so it serves Cloudflare's AI-crawler block with a
+    // 200. Acceptable only while it is purely that block: no Sitemap line and
+    // none of app/robots.js's rules, i.e. nothing presenting it as a live site.
+    if (path === '/robots.txt' && status === 200 && BASE === SITE) {
+      const body = await (await fetch(`https://${alias}/robots.txt`)).text();
+      const tail = body.split('# END Cloudflare Managed Content')[1] ?? body;
+      if (/cloudflare managed content/i.test(body) && !/sitemap:/i.test(tail) && !tail.trim()) continue;
+    }
+    if (![301, 308].includes(status) || location !== `${SITE}${path}`) {
+      fail(`${alias}${path}`, `expected a permanent redirect to ${SITE}${path}, got ${status} -> ${location}`);
+    }
   }
 }
 
@@ -325,7 +329,7 @@ console.log(`seo-check against ${BASE}`);
 console.log(`  sitemap URLs     ${sitemap.size}`);
 console.log(`  pages fetched    ${pages.size}  (${Object.entries(byLocale).map(([l, n]) => `${l} ${n}`).join(', ')})`);
 console.log(`  internal links   ${linkTargets.size} distinct, ${linkCount} outside the sitemap checked`);
-console.log(`  redirects        ${REDIRECTS.length} single-hop cases, ${WWW_PATHS.length} www paths, ${LOCALES.length} locale roots without Accept-Language`);
+console.log(`  redirects        ${REDIRECTS.length} single-hop cases, ${ALIASES.length * ALIAS_PATHS.length} alias-host paths, ${LOCALES.length} locale roots without Accept-Language`);
 console.log('  brand            favicon, apple-touch-icon, organisation logo, sameAs');
 
 if (problems.length) {

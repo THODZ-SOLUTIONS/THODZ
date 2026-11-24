@@ -85,8 +85,15 @@ export function middleware(request) {
   // One canonical host. www serves the same Worker, so without this it is a
   // full duplicate of the site held together only by canonical tags; a
   // permanent redirect is the stronger signal and costs the visitor one hop.
+  //
+  // The same goes for the apex on a non-standard port. Cloudflare proxies a
+  // set of extra HTTPS/HTTP ports (2053, 2083, 8443, 8080, ...) for every
+  // proxied hostname, and Bing had discovered thodz.com:2083 serving the full
+  // site with a 200. A zone Redirect Rule handles both cases first; this is
+  // the fallback if that rule is ever disabled. localhost:3000 in development
+  // is not thodz.com, so it is untouched.
   const host = request.headers.get('host') || '';
-  if (host.startsWith('www.')) {
+  if (host.startsWith('www.') || host.startsWith(`${new URL(SITE_URL).hostname}:`)) {
     return NextResponse.redirect(`${SITE_URL}${pathname}${search}`, 308);
   }
 
