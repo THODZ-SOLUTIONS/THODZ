@@ -51,6 +51,12 @@
   flex-direction: column;
   gap: var(--space-3);
 }
+/* The profiles list is long; two short columns instead of one tall one. */
+.footer-col-links--grid {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: var(--space-8);
+}
 
 .footer-link {
   color: var(--text-secondary);

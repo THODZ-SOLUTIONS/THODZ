@@ -176,7 +176,14 @@ function organizationSchema(locale) {
     alternateName: ['THODZ', 'Thodz Solutions'],
     url: SITE_URL,
     description: t.meta.orgDescription,
-    logo: `${SITE_URL}/assets/logo-full.svg`,
+    // A square raster, not the wordmark: Google's logo guidance asks for at
+    // least 112x112 and crops toward a square in the knowledge panel.
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}/assets/logo-512.png`,
+      width: 512,
+      height: 512,
+    },
     image: `${SITE_URL}/opengraph-image`,
     email: CONTACT.email,
     telephone: CONTACT.phoneE164,
