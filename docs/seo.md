@@ -56,6 +56,7 @@ publish, such as `/de/services` — are skipped.
 | --- | --- | --- |
 | `http(s)://www.thodz.com/*` | `https://thodz.com/*` | **301**, Cloudflare Redirect Rule "www to apex" |
 | `www.thodz.com/*` reaching the Worker | `thodz.com/*` | 308, `middleware.js` (fallback) |
+| `thodz.com:<port>/*` (2053, 2083, 8443, 8080, …) | `https://thodz.com/*` | **301**, Cloudflare Redirect Rule "apex non-standard ports to 443"; 308 in `middleware.js` as fallback |
 | `/about`, `/work/*`, any pre-i18n path | `/en/...` | 308 |
 | `/` | `/{detected locale}` | **307** |
 | `/EN`, `/Fr/work`, any mis-cased locale | the lowercase URL | 308 |
@@ -71,7 +72,13 @@ schemes, in one hop; before it existed `http://www` took two hops and static
 files on www never reached the Worker at all. `middleware.js` keeps its own
 www check as the fallback if the rule is ever disabled.
 
-`www.thodz.com/robots.txt` is the one path the rule cannot redirect: the
+Cloudflare proxies a set of extra ports for every proxied hostname, so
+without the port rule the whole site also answered on `thodz.com:2083` and
+`:8443`. Bing had already discovered `:2083`. The rule's expression is
+`http.host eq "thodz.com" and not cf.edge.server_port in {80 443}`, which
+leaves `www` (its own rule) and other subdomains alone.
+
+`robots.txt` on www and on those ports is the one path the rule cannot redirect: the
 Cloudflare-managed robots.txt answers it first, with only Cloudflare's AI
 crawler block. `seo:crawl` accepts that exact case and fails on anything
 more, such as a `Sitemap:` line appearing on www.
