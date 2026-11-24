@@ -136,6 +136,11 @@
   z-index: 60;
   animation: nav-menu-in var(--duration-fast) var(--ease-out);
 }
+/* The menu stays in the DOM so its links are in the server HTML; `hidden`
+   has to beat the display: flex above. */
+.locale-switcher-menu[hidden] {
+  display: none;
+}
 
 .locale-switcher-option {
   display: flex;

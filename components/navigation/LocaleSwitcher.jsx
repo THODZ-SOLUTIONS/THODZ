@@ -37,10 +37,10 @@ export function LocaleSwitcher({
   autoLabel,
   autoHint,
   variant = 'menu',
-  // Locales that publish service pages. Passed as a plain array from the
-  // server layout rather than imported, so lib/services.js and its prose
-  // never reach the client bundle.
-  serviceLocales = [],
+  // { '/services/devops': ['en', 'fr', 'ar'], ... } for every page that
+  // exists in only some locales. Built by the server layout, so the data
+  // behind it never reaches the client bundle.
+  pageLocales = {},
 }) {
   const [open, setOpen] = useState(false);
   // null until mounted: the cookie is only readable on the client, and the
@@ -51,9 +51,10 @@ export function LocaleSwitcher({
   const rest = pathname.replace(/^\/[^/]+/, '');
 
   // On a page that only some locales publish, offer only those. A switcher
-  // that links to a 404 is worse than one with fewer options.
-  const onServices = rest === '/services' || rest.startsWith('/services/');
-  const available = onServices && serviceLocales.length ? serviceLocales : LOCALES;
+  // that links to a 404 is worse than one with fewer options. This used to
+  // cover /services alone, so a blog post or a landing page offered links to
+  // six pages that did not exist.
+  const available = pageLocales[rest]?.length ? pageLocales[rest] : LOCALES;
 
   useEffect(() => {
     setPinned(hasPinnedLocale());
@@ -137,43 +138,44 @@ export function LocaleSwitcher({
         <Icon name="ChevronDown" size={13} aria-hidden="true" className="locale-switcher-chevron" />
       </button>
 
-      {open && (
-        <div className="locale-switcher-menu" role="group" aria-label={label}>
-          <button
-            type="button"
-            className={`locale-switcher-option locale-switcher-option--auto${
-              pinned === false ? ' locale-switcher-option--active' : ''
-            }`}
-            aria-current={pinned === false ? 'true' : undefined}
-            onClick={chooseAuto}
-          >
-            <span>
-              {autoLabel}
-              <span className="locale-switcher-hint">{autoHint}</span>
-            </span>
-            {pinned === false && <Icon name="Check" size={14} aria-hidden="true" />}
-          </button>
+      {/* Always rendered, hidden while closed, so the alternate-language
+          links are in the server HTML as plain <a href> a crawler can follow,
+          not only after a click. */}
+      <div className="locale-switcher-menu" role="group" aria-label={label} hidden={!open}>
+        <button
+          type="button"
+          className={`locale-switcher-option locale-switcher-option--auto${
+            pinned === false ? ' locale-switcher-option--active' : ''
+          }`}
+          aria-current={pinned === false ? 'true' : undefined}
+          onClick={chooseAuto}
+        >
+          <span>
+            {autoLabel}
+            <span className="locale-switcher-hint">{autoHint}</span>
+          </span>
+          {pinned === false && <Icon name="Check" size={14} aria-hidden="true" />}
+        </button>
 
-          {available.map((l) => (
-            <Link
-              key={l}
-              href={`/${l}${rest}`}
-              lang={l}
-              className={`locale-switcher-option${l === locale ? ' locale-switcher-option--active' : ''}`}
-              aria-current={l === locale ? 'true' : undefined}
-              onClick={() => {
-                remember(l);
-                setOpen(false);
-              }}
-            >
-              <span>{LOCALE_NAMES[l]}</span>
-              {/* The tick marks the pinned choice; the highlight marks the
-                  language actually shown. Under Automatic they differ. */}
-              {pinned && l === locale && <Icon name="Check" size={14} aria-hidden="true" />}
-            </Link>
-          ))}
-        </div>
-      )}
+        {available.map((l) => (
+          <Link
+            key={l}
+            href={`/${l}${rest}`}
+            lang={l}
+            className={`locale-switcher-option${l === locale ? ' locale-switcher-option--active' : ''}`}
+            aria-current={l === locale ? 'true' : undefined}
+            onClick={() => {
+              remember(l);
+              setOpen(false);
+            }}
+          >
+            <span>{LOCALE_NAMES[l]}</span>
+            {/* The tick marks the pinned choice; the highlight marks the
+                language actually shown. Under Automatic they differ. */}
+            {pinned && l === locale && <Icon name="Check" size={14} aria-hidden="true" />}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

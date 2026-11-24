@@ -3,29 +3,22 @@ import { notFound } from 'next/navigation';
 import { JsonLd } from '@/components/core/JsonLd';
 import { PageHead } from '@/components/marketing/PageHead';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getBlogLocales, getPosts } from '@/lib/blog';
-import { localeAlternatesIn } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).blog;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/blog',
     title: t.metaTitle,
     description: t.metaDescription,
-    // Only the locales that actually have published posts.
-    alternates: {
-      ...localeAlternatesIn(getBlogLocales(), '/blog', locale),
-      types: { 'application/rss+xml': `${SITE_URL}/${locale}/blog/rss.xml` },
-    },
-    ...pageOpenGraph({
-      locale,
-      path: '/blog',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+    locales: getBlogLocales(),
+    extra: { alternates: { types: { 'application/rss+xml': `${SITE_URL}/${locale}/blog/rss.xml` } } },
+  });
 }
 
 export default async function BlogIndexPage({ params }) {
@@ -39,6 +32,11 @@ export default async function BlogIndexPage({ params }) {
 
   return (
     <div>
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).nav.blog, path: '/blog' },
+        ])}
+      />
       <JsonLd
         data={{
           '@context': 'https://schema.org',

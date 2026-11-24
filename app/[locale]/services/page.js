@@ -4,25 +4,21 @@ import { Icon } from '@/components/core/Icon';
 import { JsonLd } from '@/components/core/JsonLd';
 import { PageHead } from '@/components/marketing/PageHead';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { SERVICE_LOCALES } from '@/lib/services';
-import { localeAlternatesIn } from '@/lib/i18n/config';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).services;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/services',
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternatesIn(SERVICE_LOCALES, '/services', locale),
-    ...pageOpenGraph({
-      locale,
-      path: '/services',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+    locales: SERVICE_LOCALES,
+  });
 }
 
 export default async function ServicesIndexPage({ params }) {
@@ -38,6 +34,11 @@ export default async function ServicesIndexPage({ params }) {
 
   return (
     <div>
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).nav.services, path: '/services' },
+        ])}
+      />
       <JsonLd
         data={{
           '@context': 'https://schema.org',

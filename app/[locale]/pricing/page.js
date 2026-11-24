@@ -5,24 +5,19 @@ import { PageHead } from '@/components/marketing/PageHead';
 import { EngagementCard } from '@/components/marketing/EngagementCard';
 import { Faq } from '@/components/marketing/Faq';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
-import { localeAlternates } from '@/lib/i18n/config';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).pricing;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/pricing',
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/pricing', locale),
-    ...pageOpenGraph({
-      locale,
-      path: '/pricing',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+  });
 }
 
 export default async function PricingPage({ params }) {
@@ -33,6 +28,11 @@ export default async function PricingPage({ params }) {
 
   return (
     <div>
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).nav.pricing, path: '/pricing' },
+        ])}
+      />
       <JsonLd
         data={{
           '@context': 'https://schema.org',

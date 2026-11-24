@@ -6,8 +6,7 @@ import { Screenshot } from '@/components/marketing/Screenshot';
 import { Testimonial } from '@/components/marketing/Testimonial';
 import { CASE_STUDIES } from '@/lib/content';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
-import { localeAlternates } from '@/lib/i18n/config';
+import { buildMetadata, breadcrumbSchema, ORG_ID } from '@/lib/seo';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 export function generateStaticParams() {
@@ -28,25 +27,19 @@ export async function generateMetadata({ params }) {
   const metaTitle = study.metaTitle || study.title;
   const metaDescription = study.metaDescription || study.summary;
 
-  return {
-    // Absolute, because the layout's template appends ' · THODZ SOLUTIONS'
-    // — 18 characters that pushed 61 of these titles past the limit. The
-    // short brand keeps THODZ in the result and costs 8.
-    title: { absolute: `${metaTitle} · THODZ` },
+  return buildMetadata({
+    locale,
+    path: `/work/${study.slug}`,
+    title: metaTitle,
     description: metaDescription,
-    alternates: localeAlternates(`/work/${study.slug}`, locale),
-    // Falls back to the generated card when a case study has no screenshot
-    // yet, rather than sharing as a bare link. Share cards have no length
-    // budget, so they keep the full name and the untrimmed summary.
-    ...pageOpenGraph({
-      locale,
-      path: `/work/${study.slug}`,
-      title: `${study.title} · THODZ SOLUTIONS`,
-      description: study.summary,
-      image,
-      type: 'article',
-    }),
-  };
+    // Share cards have no length budget, so they keep the full name and the
+    // untrimmed summary. Falls back to the generated card when a case study
+    // has no screenshot yet, rather than sharing as a bare link.
+    shareTitle: study.title,
+    shareDescription: study.summary,
+    image,
+    type: 'article',
+  });
 }
 
 export default async function CaseStudyPage({ params }) {
@@ -70,8 +63,9 @@ export default async function CaseStudyPage({ params }) {
           description: study.summary,
           url: `${SITE_URL}/${locale}/work/${study.slug}`,
           about: study.category,
+          inLanguage: locale,
           image: study.images?.map((i) => `${SITE_URL}${i.src}`),
-          creator: { '@type': 'Organization', name: 'THODZ SOLUTIONS', url: SITE_URL },
+          creator: { '@id': ORG_ID },
         }}
       />
 
@@ -79,15 +73,10 @@ export default async function CaseStudyPage({ params }) {
           changes what a result looks like: Google renders the trail in place
           of the raw URL. Positions follow the real navigation path. */}
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: t.breadcrumbHome, item: `${SITE_URL}/${locale}` },
-            { '@type': 'ListItem', position: 2, name: t.breadcrumbWork, item: `${SITE_URL}/${locale}/work` },
-            { '@type': 'ListItem', position: 3, name: study.title },
-          ],
-        }}
+        data={breadcrumbSchema(locale, t.breadcrumbHome, [
+          { name: t.breadcrumbWork, path: '/work' },
+          { name: study.title, path: `/work/${study.slug}` },
+        ])}
       />
 
       <div className="page-head bg-grid">

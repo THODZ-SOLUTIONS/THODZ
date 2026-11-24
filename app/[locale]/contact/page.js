@@ -1,25 +1,21 @@
+import { JsonLd } from '@/components/core/JsonLd';
 import { Icon } from '@/components/core/Icon';
 import { ContactForm } from '@/components/forms/ContactForm';
 import { CONTACT, SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
-import { localeAlternates } from '@/lib/i18n/config';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getDictionary } from '@/lib/i18n';
 import { PageHead } from '@/components/marketing/PageHead';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).contact;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/contact',
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/contact', locale),
-    ...pageOpenGraph({
-      locale,
-      path: '/contact',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+  });
 }
 
 export default async function ContactPage({ params }) {
@@ -29,6 +25,11 @@ export default async function ContactPage({ params }) {
 
   return (
     <div style={{ minHeight: 600 }}>
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).footer.contact, path: '/contact' },
+        ])}
+      />
       <PageHead eyebrow={t.eyebrow} title={t.title} sub={t.sub} />
 
       <div className="container container--sm" style={{ paddingBlock: '40px 48px' }}>

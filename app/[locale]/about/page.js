@@ -1,26 +1,22 @@
+import { JsonLd } from '@/components/core/JsonLd';
 import Link from 'next/link';
 import { SectionHead } from '@/components/marketing/SectionHead';
 import { PageHead } from '@/components/marketing/PageHead';
 import { TeamCard } from '@/components/marketing/TeamCard';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
-import { localeAlternates } from '@/lib/i18n/config';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getDictionary, getContent } from '@/lib/i18n';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).about;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/about',
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/about', locale),
-    ...pageOpenGraph({
-      locale,
-      path: '/about',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+  });
 }
 
 export default async function AboutPage({ params }) {
@@ -30,6 +26,11 @@ export default async function AboutPage({ params }) {
 
   return (
     <div>
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).nav.about, path: '/about' },
+        ])}
+      />
       <PageHead eyebrow={t.headEyebrow} title={t.heroTitle} />
 
       {/* Left-aligned to the same gutter as the page head; the measure is

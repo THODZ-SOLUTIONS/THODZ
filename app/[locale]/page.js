@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Icon } from '@/components/core/Icon';
 import { JsonLd } from '@/components/core/JsonLd';
+import { ORG_ID, WEBSITE_ID } from '@/lib/seo';
 import { Reveal } from '@/components/core/Reveal';
 import { HeroArt } from '@/components/home/HeroArt';
 import { ServiceMarquee } from '@/components/home/ServiceMarquee';
@@ -34,10 +35,14 @@ export default async function HomePage({ params }) {
         data={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
-          name: 'THODZ SOLUTIONS',
+          '@id': WEBSITE_ID,
+          // `name` is what Google shows as the site name above every result,
+          // so it is the short brand; the legal name is the alternate.
+          name: 'THODZ',
+          alternateName: 'THODZ SOLUTIONS',
           url: `${SITE_URL}/${locale}`,
           inLanguage: locale,
-          publisher: { '@type': 'Organization', name: 'THODZ SOLUTIONS', url: SITE_URL },
+          publisher: { '@id': ORG_ID },
         }}
       />
       {/* The FAQ is answered in full on this page, so the markup belongs

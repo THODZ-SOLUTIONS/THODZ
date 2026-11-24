@@ -15,5 +15,9 @@ export default {
   // `npm run build` is `opennextjs-cloudflare build`, and OpenNext's default
   // Next.js build step is `npm run build` — without this override it calls
   // itself forever. Point it straight at Next.
-  buildCommand: "npx next build",
+  //
+  // The translation check runs first, so `npm run build` (and with it the
+  // Cloudflare deploy) fails on a missing translation instead of shipping
+  // English under a translated URL. See scripts/check-i18n.mjs.
+  buildCommand: "node scripts/check-i18n.mjs && npx next build",
 };

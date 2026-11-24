@@ -1,23 +1,19 @@
+import { JsonLd } from '@/components/core/JsonLd';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { ProseSections } from '@/components/core/ProseSections';
-import { localeAlternates } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const t = getDictionary(locale).terms;
-  return {
+  return buildMetadata({
+    locale,
+    path: '/terms',
     title: t.metaTitle,
     description: t.metaDescription,
-    alternates: localeAlternates('/terms', locale),
-    ...pageOpenGraph({
-      locale,
-      path: '/terms',
-      title: `${t.metaTitle} · THODZ SOLUTIONS`,
-      description: t.ogDescription,
-    }),
-  };
+    shareDescription: t.ogDescription,
+  });
 }
 
 // TODO(legal): replace the generic "THODZ SOLUTIONS, Algeria" wording with the
@@ -29,6 +25,11 @@ export default async function TermsPage({ params }) {
 
   return (
     <div className="container container--md prose">
+      <JsonLd
+        data={breadcrumbSchema(locale, getDictionary(locale).caseStudy.breadcrumbHome, [
+          { name: getDictionary(locale).footer.terms, path: '/terms' },
+        ])}
+      />
       <h1>{t.title}</h1>
       <p className="prose-updated">{t.updated}</p>
       <p>{t.intro}</p>

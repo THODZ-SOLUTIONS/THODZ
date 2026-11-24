@@ -3,9 +3,8 @@ import { notFound } from 'next/navigation';
 import { Icon } from '@/components/core/Icon';
 import { JsonLd } from '@/components/core/JsonLd';
 import { SITE_URL } from '@/lib/config';
-import { pageOpenGraph } from '@/lib/seo';
-import { getPost, getPostLocales, getPostParams } from '@/lib/blog';
-import { localeAlternatesIn } from '@/lib/i18n/config';
+import { buildMetadata, breadcrumbSchema, ORG_ID } from '@/lib/seo';
+import { getPost, getPublishedPostLocales, getPostParams } from '@/lib/blog';
 import { getDictionary } from '@/lib/i18n';
 
 // Exact {locale, slug} pairs, so a post written in two languages produces two
@@ -20,32 +19,27 @@ export async function generateMetadata({ params }) {
   const { locale, slug } = await params;
   const post = getPost(slug, locale);
   if (!post) return {};
-  return {
-    // Absolute, because the layout template appends ' · THODZ SOLUTIONS' —
-    // 18 characters on top of a headline that is already long. The short
-    // brand keeps THODZ in the result instead of being what gets truncated.
-    title: { absolute: `${post.metaTitle} · THODZ` },
+  return buildMetadata({
+    locale,
+    path: `/blog/${slug}`,
+    title: post.metaTitle,
     description: post.metaDescription,
+    // Share cards have no length budget, so they keep the full headline.
+    shareTitle: post.title,
+    shareDescription: post.description,
+    type: 'article',
     // hreflang lists only the languages this post is actually written in.
     // A post in English and French declares two alternates, not eight;
     // claiming a translation that does not exist is a link to a 404.
-    alternates: {
-      ...localeAlternatesIn(getPostLocales(slug), `/blog/${slug}`, locale),
-      types: { 'application/rss+xml': `${SITE_URL}/${locale}/blog/rss.xml` },
+    locales: getPublishedPostLocales(slug),
+    extra: {
+      alternates: { types: { 'application/rss+xml': `${SITE_URL}/${locale}/blog/rss.xml` } },
+      // A draft is reachable at its URL so it can be reviewed in the real
+      // layout, but it must not be indexed or it will be found before it is
+      // finished.
+      ...(post.draft ? { robots: { index: false, follow: false } } : {}),
     },
-    // A draft is reachable at its URL so it can be reviewed in the real
-    // layout, but it must not be indexed or it will be found before it is
-    // finished.
-    ...(post.draft ? { robots: { index: false, follow: false } } : {}),
-    ...pageOpenGraph({
-      locale,
-      path: `/blog/${slug}`,
-      // Share cards have no length budget, so they keep the full headline.
-      title: `${post.title} · THODZ SOLUTIONS`,
-      description: post.description,
-      type: 'article',
-    }),
-  };
+  });
 }
 
 export default async function BlogPostPage({ params }) {
@@ -64,7 +58,7 @@ export default async function BlogPostPage({ params }) {
       <JsonLd
         data={{
           '@context': 'https://schema.org',
-          '@type': 'Article',
+          '@type': 'BlogPosting',
           headline: post.title,
           description: post.description,
           url,
@@ -74,21 +68,16 @@ export default async function BlogPostPage({ params }) {
           // to datePublished on every article is noise.
           ...(post.updated ? { dateModified: post.updated } : {}),
           author: { '@type': 'Organization', name: post.author, url: SITE_URL },
-          publisher: { '@id': `${SITE_URL}/#organization` },
+          publisher: { '@id': ORG_ID },
           mainEntityOfPage: { '@type': 'WebPage', '@id': url },
         }}
       />
 
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: t.breadcrumbHome, item: `${SITE_URL}/${locale}` },
-            { '@type': 'ListItem', position: 2, name: t.breadcrumbBlog, item: `${SITE_URL}/${locale}/blog` },
-            { '@type': 'ListItem', position: 3, name: post.title },
-          ],
-        }}
+        data={breadcrumbSchema(locale, t.breadcrumbHome, [
+          { name: t.breadcrumbBlog, path: '/blog' },
+          { name: post.title, path: `/blog/${slug}` },
+        ])}
       />
 
       <div className="container container--lg">

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "opennextjs-cloudflare build",
-    "build:next": "next build",
+    "build:next": "node scripts/check-i18n.mjs && next build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "start": "next start",
@@ -13,8 +13,10 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare deploy",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "check:seo": "node scripts/check-seo.mjs",
-    "build:check": "next build && node scripts/check-seo.mjs"
+    "seo:crawl": "node scripts/seo-check.mjs",
+    "build:check": "node scripts/check-i18n.mjs && next build && node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^4.1.0",
